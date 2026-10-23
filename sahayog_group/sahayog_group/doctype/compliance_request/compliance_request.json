@@ -1,0 +1,355 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "CR-.YYYY.-.####",
+ "creation": "2026-10-19 16:42:13.630166",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "compliance_details_section",
+  "compliance_master",
+  "compliance_category",
+  "cb_details_1",
+  "department",
+  "risk_tier",
+  "cb_details_2",
+  "compliance_unit",
+  "company",
+  "people_section",
+  "responsible_person",
+  "backup_owner",
+  "cb_people_1",
+  "reviewer",
+  "department_head",
+  "section_break_syjv",
+  "due_date",
+  "original_due_date",
+  "due_date_change_reason",
+  "cb_dates_1",
+  "initiation_date",
+  "next_follow_up_date",
+  "previous_record",
+  "status_section",
+  "status",
+  "status_reason",
+  "application_reference_no",
+  "cb_status_1",
+  "next_action",
+  "blocker",
+  "cb_status_2",
+  "reason_for_delay",
+  "is_external_delay",
+  "closure_section",
+  "completion_requested_on",
+  "reviewer_decision",
+  "cb_closure_1",
+  "rejection_reason",
+  "cb_closure_2",
+  "closed_on",
+  "closed_by",
+  "evidence_section",
+  "evidence_items"
+ ],
+ "fields": [
+  {
+   "fieldname": "compliance_master",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Compliance",
+   "options": "Compliance",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "compliance_master.compliance_category",
+   "fieldname": "compliance_category",
+   "fieldtype": "Link",
+   "label": "Compliance Category",
+   "options": "Compliance Category",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "compliance_master.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Compliance Department",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "compliance_master.risk_tier",
+   "fieldname": "risk_tier",
+   "fieldtype": "Data",
+   "label": "Risk Tier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "compliance_unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Compliance Unit",
+   "options": "Compliance Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "compliance_details_section",
+   "fieldtype": "Section Break",
+   "label": "Compliance Details"
+  },
+  {
+   "fieldname": "people_section",
+   "fieldtype": "Section Break",
+   "label": "People"
+  },
+  {
+   "fieldname": "responsible_person",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Responsible Person",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reviewer",
+   "fieldtype": "Link",
+   "label": "Reviewer",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_syjv",
+   "fieldtype": "Section Break",
+   "label": "Dates"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "initiation_date",
+   "fieldtype": "Date",
+   "label": "Initiation Date"
+  },
+  {
+   "default": "Upcoming",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nNot Yet Applicable\nUpcoming\nAction Required\nIn Progress\nApplication Submitted\nAwaiting Authority / Third Party\nBlocked / At Risk\nCompletion Submitted\nClosed / Completed\nOverdue\nException Approved\nSuperseded / Inactive"
+  },
+  {
+   "fieldname": "previous_record",
+   "fieldtype": "Link",
+   "label": "Previous Record",
+   "options": "Compliance Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "evidence_section",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "evidence_items",
+   "fieldtype": "Table",
+   "label": "Evidence Items",
+   "options": "Compliance Evidence Item"
+  },
+  {
+   "description": "Accountable manager for this record",
+   "fieldname": "department_head",
+   "fieldtype": "Link",
+   "label": "Department Head",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "description": "Takes over if the Responsible Person is unavailable",
+   "fieldname": "backup_owner",
+   "fieldtype": "Link",
+   "label": "Backup Owner",
+   "options": "User"
+  },
+  {
+   "description": "First due date. It never changes, even if Due Date is changed later",
+   "fieldname": "original_due_date",
+   "fieldtype": "Date",
+   "label": "Original Due Date",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.original_due_date && doc.due_date != doc.original_due_date",
+   "description": "Why the due date was changed",
+   "fieldname": "due_date_change_reason",
+   "fieldtype": "Small Text",
+   "label": "Due Date Change Reason",
+   "mandatory_depends_on": "eval:doc.original_due_date && doc.due_date != doc.original_due_date"
+  },
+  {
+   "description": "Application or filing reference number given by the authority",
+   "fieldname": "application_reference_no",
+   "fieldtype": "Data",
+   "label": "Application Reference No"
+  },
+  {
+   "description": "When to follow up next with the authority or vendor",
+   "fieldname": "next_follow_up_date",
+   "fieldtype": "Date",
+   "label": "Next Follow-up Date"
+  },
+  {
+   "description": "What needs to be done next",
+   "fieldname": "next_action",
+   "fieldtype": "Small Text",
+   "label": "Next Action"
+  },
+  {
+   "description": "What is blocking this work, if anything",
+   "fieldname": "blocker",
+   "fieldtype": "Small Text",
+   "label": "Blocker"
+  },
+  {
+   "description": "Why this work is delayed, if it is",
+   "fieldname": "reason_for_delay",
+   "fieldtype": "Small Text",
+   "label": "Reason for Delay"
+  },
+  {
+   "default": "0",
+   "description": "Tick if the delay is caused by an outside authority or vendor",
+   "fieldname": "is_external_delay",
+   "fieldtype": "Check",
+   "label": "Is External Delay"
+  },
+  {
+   "description": "Date when closure was requested",
+   "fieldname": "completion_requested_on",
+   "fieldtype": "Date",
+   "label": "Completion Requested On",
+   "read_only": 1
+  },
+  {
+   "description": "Decision of the Reviewer on the closure request",
+   "fieldname": "reviewer_decision",
+   "fieldtype": "Select",
+   "label": "Reviewer Decision",
+   "options": "\nApproved\nRejected"
+  },
+  {
+   "depends_on": "eval:doc.reviewer_decision==\"Rejected\"",
+   "description": "Required when the Reviewer rejects the closure request",
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "mandatory_depends_on": "eval:doc.reviewer_decision==\"Rejected\""
+  },
+  {
+   "description": "Date and time when the record was closed",
+   "fieldname": "closed_on",
+   "fieldtype": "Datetime",
+   "label": "Closed On",
+   "read_only": 1
+  },
+  {
+   "description": "User who approved the closure",
+   "fieldname": "closed_by",
+   "fieldtype": "Link",
+   "label": "Closed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_details_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cb_details_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cb_people_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cb_dates_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status & Progress"
+  },
+  {
+   "fieldname": "cb_status_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cb_status_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.status==\"Completion Submitted\" || doc.status==\"Closed / Completed\"",
+   "fieldname": "closure_section",
+   "fieldtype": "Section Break",
+   "label": "Review & Closure"
+  },
+  {
+   "fieldname": "cb_closure_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cb_closure_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "compliance_unit.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Compliance Company"
+  },
+  {
+   "fieldname": "status_reason",
+   "fieldtype": "Small Text",
+   "label": "Status Reason",
+   "depends_on": "eval:[\"Not Yet Applicable\",\"Superseded / Inactive\",\"Exception Approved\"].includes(doc.status)",
+   "mandatory_depends_on": "eval:[\"Not Yet Applicable\",\"Superseded / Inactive\",\"Exception Approved\"].includes(doc.status)",
+   "description": "Required for Not Yet Applicable, Superseded / Inactive and Exception Approved"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-23 12:43:19.530874",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Compliance Request",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

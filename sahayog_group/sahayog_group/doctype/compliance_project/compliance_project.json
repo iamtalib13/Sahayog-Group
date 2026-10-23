@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "field:unit_name",
+ "creation": "2026-10-19 15:48:56.546360",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "unit_name",
+  "company",
+  "go_live_status",
+  "go_live_date",
+  "place",
+  "is_active"
+ ],
+ "fields": [
+  {
+   "fieldname": "unit_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Unit Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "depends_on": "eval:doc.go_live_status==\"Live\"",
+   "fieldname": "go_live_date",
+   "fieldtype": "Date",
+   "label": "Go Live Date",
+   "mandatory_depends_on": "eval:doc.go_live_status==\"Live\""
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "place",
+   "fieldtype": "Data",
+   "label": "Place"
+  },
+  {
+   "default": "Proposed",
+   "fieldname": "go_live_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Go Live Status",
+   "options": "Proposed\nIn Project\nPre-opening\nLive\nSuspended\nClosed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Compliance Company",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-23 12:37:57.207122",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Compliance Project",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,188 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "field:compliance_name",
+ "creation": "2026-10-19 16:01:48.739832",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "details_section",
+  "is_active",
+  "compliance_name",
+  "compliance_category",
+  "department",
+  "cb_details_1",
+  "obligation_type",
+  "legal_entity",
+  "issuing_authority",
+  "description_section",
+  "description",
+  "cb_description_1",
+  "legal_basis",
+  "schedule_section",
+  "recurrence",
+  "days_to_start_in_advance",
+  "cb_schedule_1",
+  "risk_tier",
+  "is_critical",
+  "evidence_section",
+  "evidence_rules"
+ ],
+ "fields": [
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Compliance Details"
+  },
+  {
+   "fieldname": "compliance_name",
+   "fieldtype": "Data",
+   "label": "Compliance Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "compliance_category",
+   "fieldtype": "Link",
+   "label": "Compliance Category",
+   "options": "Compliance Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "label": "Obligation Type",
+   "options": "Licence / Registration\nRecurring Filing\nContract / Agreement\nRenewal\nInspection / Service\nProject Approval\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb_details_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Compliance Department",
+   "reqd": 1
+  },
+  {
+   "fieldname": "legal_entity",
+   "fieldtype": "Link",
+   "label": "Legal Entity",
+   "options": "Compliance Company"
+  },
+  {
+   "description": "Authority or vendor that issues this, e.g. Fire Department",
+   "fieldname": "issuing_authority",
+   "fieldtype": "Data",
+   "label": "Issuing Authority (Optional)"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "cb_description_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Act, rule or agreement under which this is required",
+   "fieldname": "legal_basis",
+   "fieldtype": "Small Text",
+   "label": "Legal / Contractual Basis"
+  },
+  {
+   "fieldname": "schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Schedule & Risk"
+  },
+  {
+   "fieldname": "recurrence",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Recurrence",
+   "options": "One-time\nMonthly\nQuarterly\nHalf-Yearly\nYearly",
+   "reqd": 1
+  },
+  {
+   "description": "Specifies how many days before the due date the task should be started",
+   "fieldname": "days_to_start_in_advance",
+   "fieldtype": "Int",
+   "label": "Days to Start in Advance"
+  },
+  {
+   "fieldname": "cb_schedule_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "risk_tier",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Risk Tier",
+   "options": "Low\nMedium\nHigh\nCritical",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "Automatically ticked when Risk Tier is Critical",
+   "fieldname": "is_critical",
+   "fieldtype": "Check",
+   "label": "Is Critical",
+   "read_only": 1
+  },
+  {
+   "fieldname": "evidence_section",
+   "fieldtype": "Section Break",
+   "label": "Evidence Required"
+  },
+  {
+   "fieldname": "evidence_rules",
+   "fieldtype": "Table",
+   "label": "Evidence Rules",
+   "options": "Compliance Evidence Rule"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-23 12:36:08.742062",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Compliance",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
