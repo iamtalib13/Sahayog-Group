@@ -1,0 +1,24 @@
+{
+ "app": "sahayog_group",
+ "creation": "2026-10-23 12:45:14.917926",
+ "docstatus": 0,
+ "doctype": "Dock",
+ "idx": 0,
+ "items": [
+  {
+   "added": 0,
+   "hidden": 0,
+   "icon": "organization",
+   "link_to": "Sahayog Compliance",
+   "link_type": "Workspace",
+   "title": "Sahayog Compliance"
+  }
+ ],
+ "modified": "2026-10-23 13:01:33.637067",
+ "modified_by": "Administrator",
+ "mount_on": "",
+ "name": "0notsdna93",
+ "owner": "Administrator",
+ "standard": 1,
+ "user": ""
+}
