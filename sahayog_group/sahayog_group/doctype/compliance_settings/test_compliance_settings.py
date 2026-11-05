@@ -13,9 +13,9 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 
-class IntegrationTestComplianceEvidenceItem(IntegrationTestCase):
+class IntegrationTestComplianceSettings(IntegrationTestCase):
 	"""
-	Integration tests for ComplianceEvidenceItem.
+	Integration tests for ComplianceSettings.
 	Use this class for testing interactions between multiple components.
 	"""
 

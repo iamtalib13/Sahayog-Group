@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Talib Sheikh and contributors
 // For license information, please see license.txt
 
-// frappe.ui.form.on("Compliance Evidence Item", {
+// frappe.ui.form.on("Evidence Item", {
 // 	refresh(frm) {
 
 // 	},

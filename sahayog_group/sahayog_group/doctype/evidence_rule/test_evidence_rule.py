@@ -13,9 +13,9 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 
-class IntegrationTestComplianceEvidenceRule(IntegrationTestCase):
+class IntegrationTestEvidenceRule(IntegrationTestCase):
 	"""
-	Integration tests for ComplianceEvidenceRule.
+	Integration tests for EvidenceRule.
 	Use this class for testing interactions between multiple components.
 	"""
 

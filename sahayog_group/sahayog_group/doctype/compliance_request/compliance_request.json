@@ -7,29 +7,44 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "compliance_details_section",
-  "compliance_master",
-  "compliance_category",
+  "details_tab",
+  "section_break_cgfj",
+  "compliance",
+  "is_active",
+  "column_break_pthe",
+  "category",
+  "section_break_icdu",
   "cb_details_1",
+  "project",
+  "company",
+  "column_break_pvtd",
   "department",
   "risk_tier",
-  "cb_details_2",
-  "compliance_unit",
-  "company",
+  "column_break_oxhu",
+  "applicability_reviewer",
+  "applicability_review_date",
+  "assignment_tab",
   "people_section",
   "responsible_person",
   "backup_owner",
+  "unit_head",
   "cb_people_1",
   "reviewer",
   "department_head",
+  "central_compliance_owner",
+  "dates_tab",
   "section_break_syjv",
   "due_date",
   "original_due_date",
-  "due_date_change_reason",
+  "validity_end",
+  "expected_authority_date",
+  "start_date",
   "cb_dates_1",
+  "due_date_change_reason",
   "initiation_date",
   "next_follow_up_date",
   "previous_record",
+  "status_tab",
   "status_section",
   "status",
   "status_reason",
@@ -40,6 +55,11 @@
   "cb_status_2",
   "reason_for_delay",
   "is_external_delay",
+  "risk_consequence",
+  "evidence_tab",
+  "evidence_section",
+  "evidence_items",
+  "closure_tab",
   "closure_section",
   "completion_requested_on",
   "reviewer_decision",
@@ -47,13 +67,11 @@
   "rejection_reason",
   "cb_closure_2",
   "closed_on",
-  "closed_by",
-  "evidence_section",
-  "evidence_items"
+  "closed_by"
  ],
  "fields": [
   {
-   "fieldname": "compliance_master",
+   "fieldname": "compliance",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Compliance",
@@ -61,15 +79,39 @@
    "reqd": 1
   },
   {
-   "fetch_from": "compliance_master.compliance_category",
-   "fieldname": "compliance_category",
+   "fetch_from": "compliance.category",
+   "fieldname": "category",
    "fieldtype": "Link",
-   "label": "Compliance Category",
+   "label": "Category",
    "options": "Compliance Category",
    "read_only": 1
   },
   {
-   "fetch_from": "compliance_master.department",
+   "fieldname": "cb_details_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "compliance.project",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Compliance Project",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "compliance.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Compliance Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_pvtd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "compliance.department",
    "fieldname": "department",
    "fieldtype": "Link",
    "label": "Department",
@@ -77,24 +119,18 @@
    "read_only": 1
   },
   {
-   "fetch_from": "compliance_master.risk_tier",
+   "fetch_from": "compliance.risk_tier",
    "fieldname": "risk_tier",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Risk Tier",
+   "options": "Critical\nHigh\nMedium\nLow",
    "read_only": 1
   },
   {
-   "fieldname": "compliance_unit",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Compliance Unit",
-   "options": "Compliance Project",
-   "reqd": 1
-  },
-  {
-   "fieldname": "compliance_details_section",
-   "fieldtype": "Section Break",
-   "label": "Compliance Details"
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
   },
   {
    "fieldname": "people_section",
@@ -102,6 +138,8 @@
    "label": "People"
   },
   {
+   "fetch_from": "compliance.responsible_person",
+   "fetch_if_empty": 1,
    "fieldname": "responsible_person",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -110,9 +148,34 @@
    "reqd": 1
   },
   {
+   "description": "Takes over if the Responsible Person is unavailable",
+   "fetch_from": "compliance.backup_owner",
+   "fetch_if_empty": 1,
+   "fieldname": "backup_owner",
+   "fieldtype": "Link",
+   "label": "Backup Owner",
+   "options": "User"
+  },
+  {
+   "fieldname": "cb_people_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "compliance.reviewer",
+   "fetch_if_empty": 1,
    "fieldname": "reviewer",
    "fieldtype": "Link",
    "label": "Reviewer",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "description": "Accountable manager for this record",
+   "fetch_from": "compliance.department_head",
+   "fetch_if_empty": 1,
+   "fieldname": "department_head",
+   "fieldtype": "Link",
+   "label": "Department Head",
    "options": "User",
    "reqd": 1
   },
@@ -127,52 +190,6 @@
    "in_list_view": 1,
    "label": "Due Date",
    "reqd": 1
-  },
-  {
-   "fieldname": "initiation_date",
-   "fieldtype": "Date",
-   "label": "Initiation Date"
-  },
-  {
-   "default": "Upcoming",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "Draft\nNot Yet Applicable\nUpcoming\nAction Required\nIn Progress\nApplication Submitted\nAwaiting Authority / Third Party\nBlocked / At Risk\nCompletion Submitted\nClosed / Completed\nOverdue\nException Approved\nSuperseded / Inactive"
-  },
-  {
-   "fieldname": "previous_record",
-   "fieldtype": "Link",
-   "label": "Previous Record",
-   "options": "Compliance Request",
-   "read_only": 1
-  },
-  {
-   "fieldname": "evidence_section",
-   "fieldtype": "Section Break",
-   "label": "Evidence"
-  },
-  {
-   "fieldname": "evidence_items",
-   "fieldtype": "Table",
-   "label": "Evidence Items",
-   "options": "Compliance Evidence Item"
-  },
-  {
-   "description": "Accountable manager for this record",
-   "fieldname": "department_head",
-   "fieldtype": "Link",
-   "label": "Department Head",
-   "options": "User",
-   "reqd": 1
-  },
-  {
-   "description": "Takes over if the Responsible Person is unavailable",
-   "fieldname": "backup_owner",
-   "fieldtype": "Link",
-   "label": "Backup Owner",
-   "options": "User"
   },
   {
    "description": "First due date. It never changes, even if Due Date is changed later",
@@ -190,16 +207,57 @@
    "mandatory_depends_on": "eval:doc.original_due_date && doc.due_date != doc.original_due_date"
   },
   {
-   "description": "Application or filing reference number given by the authority",
-   "fieldname": "application_reference_no",
-   "fieldtype": "Data",
-   "label": "Application Reference No"
+   "fieldname": "cb_dates_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "initiation_date",
+   "fieldtype": "Date",
+   "label": "Initiation Date"
   },
   {
    "description": "When to follow up next with the authority or vendor",
    "fieldname": "next_follow_up_date",
    "fieldtype": "Date",
    "label": "Next Follow-up Date"
+  },
+  {
+   "fieldname": "previous_record",
+   "fieldtype": "Link",
+   "label": "Previous Record",
+   "options": "Compliance Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status & Progress"
+  },
+  {
+   "default": "Upcoming",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nNot Yet Applicable\nUpcoming\nAction Required\nIn Progress\nApplication Submitted\nAwaiting Authority / Third Party\nBlocked / At Risk\nCompletion Submitted\nClosed / Completed\nOverdue\nException Approved\nSuperseded / Inactive"
+  },
+  {
+   "depends_on": "eval:[\"Not Yet Applicable\",\"Superseded / Inactive\",\"Exception Approved\"].includes(doc.status)",
+   "description": "Required for Not Yet Applicable, Superseded / Inactive and Exception Approved",
+   "fieldname": "status_reason",
+   "fieldtype": "Small Text",
+   "label": "Status Reason",
+   "mandatory_depends_on": "eval:[\"Not Yet Applicable\",\"Superseded / Inactive\",\"Exception Approved\"].includes(doc.status)"
+  },
+  {
+   "description": "Application or filing reference number given by the authority",
+   "fieldname": "application_reference_no",
+   "fieldtype": "Data",
+   "label": "Application Reference No"
+  },
+  {
+   "fieldname": "cb_status_1",
+   "fieldtype": "Column Break"
   },
   {
    "description": "What needs to be done next",
@@ -214,6 +272,10 @@
    "label": "Blocker"
   },
   {
+   "fieldname": "cb_status_2",
+   "fieldtype": "Column Break"
+  },
+  {
    "description": "Why this work is delayed, if it is",
    "fieldname": "reason_for_delay",
    "fieldtype": "Small Text",
@@ -225,6 +287,11 @@
    "fieldname": "is_external_delay",
    "fieldtype": "Check",
    "label": "Is External Delay"
+  },
+  {
+   "fieldname": "closure_section",
+   "fieldtype": "Section Break",
+   "label": "Review & Closure"
   },
   {
    "description": "Date when closure was requested",
@@ -241,12 +308,20 @@
    "options": "\nApproved\nRejected"
   },
   {
+   "fieldname": "cb_closure_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "depends_on": "eval:doc.reviewer_decision==\"Rejected\"",
    "description": "Required when the Reviewer rejects the closure request",
    "fieldname": "rejection_reason",
    "fieldtype": "Small Text",
    "label": "Rejection Reason",
    "mandatory_depends_on": "eval:doc.reviewer_decision==\"Rejected\""
+  },
+  {
+   "fieldname": "cb_closure_2",
+   "fieldtype": "Column Break"
   },
   {
    "description": "Date and time when the record was closed",
@@ -264,69 +339,120 @@
    "read_only": 1
   },
   {
-   "fieldname": "cb_details_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "cb_details_2",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "cb_people_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "cb_dates_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "status_section",
+   "fieldname": "evidence_section",
    "fieldtype": "Section Break",
-   "label": "Status & Progress"
+   "label": "Evidence"
   },
   {
-   "fieldname": "cb_status_1",
-   "fieldtype": "Column Break"
+   "fieldname": "evidence_items",
+   "fieldtype": "Table",
+   "label": "Evidence Items",
+   "options": "Evidence Item"
   },
   {
-   "fieldname": "cb_status_2",
-   "fieldtype": "Column Break"
+   "description": "Head of the hospital / project unit",
+   "fetch_from": "compliance.unit_head",
+   "fetch_if_empty": 1,
+   "fieldname": "unit_head",
+   "fieldtype": "Link",
+   "label": "Unit Head",
+   "options": "User"
   },
   {
-   "collapsible": 1,
-   "collapsible_depends_on": "eval:doc.status==\"Completion Submitted\" || doc.status==\"Closed / Completed\"",
-   "fieldname": "closure_section",
-   "fieldtype": "Section Break",
+   "fetch_from": "compliance.central_compliance_owner",
+   "fetch_if_empty": 1,
+   "fieldname": "central_compliance_owner",
+   "fieldtype": "Link",
+   "label": "Central Compliance Owner",
+   "options": "User"
+  },
+  {
+   "description": "Certificate / licence expiry date for this record",
+   "fieldname": "validity_end",
+   "fieldtype": "Date",
+   "label": "Validity End Date"
+  },
+  {
+   "description": "Expected date for authority to issue final certificate / approval",
+   "fieldname": "expected_authority_date",
+   "fieldtype": "Date",
+   "label": "Expected Authority Decision Date"
+  },
+  {
+   "description": "Financial, regulatory or patient-safety consequence if missed",
+   "fieldname": "risk_consequence",
+   "fieldtype": "Small Text",
+   "label": "Risk / Consequence"
+  },
+  {
+   "fieldname": "applicability_reviewer",
+   "fieldtype": "Link",
+   "label": "Applicability Reviewer",
+   "options": "User"
+  },
+  {
+   "fieldname": "applicability_review_date",
+   "fieldtype": "Date",
+   "label": "Applicability Review Date"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "assignment_tab",
+   "fieldtype": "Tab Break",
+   "label": "Assignment"
+  },
+  {
+   "fieldname": "dates_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dates"
+  },
+  {
+   "fieldname": "status_tab",
+   "fieldtype": "Tab Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "evidence_tab",
+   "fieldtype": "Tab Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "closure_tab",
+   "fieldtype": "Tab Break",
    "label": "Review & Closure"
   },
   {
-   "fieldname": "cb_closure_1",
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_cgfj",
+   "fieldtype": "Section Break",
+   "label": "Compliance Details"
+  },
+  {
+   "fieldname": "column_break_pthe",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "cb_closure_2",
+   "fieldname": "section_break_icdu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_oxhu",
    "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "compliance_unit.company",
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Compliance Company"
-  },
-  {
-   "fieldname": "status_reason",
-   "fieldtype": "Small Text",
-   "label": "Status Reason",
-   "depends_on": "eval:[\"Not Yet Applicable\",\"Superseded / Inactive\",\"Exception Approved\"].includes(doc.status)",
-   "mandatory_depends_on": "eval:[\"Not Yet Applicable\",\"Superseded / Inactive\",\"Exception Approved\"].includes(doc.status)",
-   "description": "Required for Not Yet Applicable, Superseded / Inactive and Exception Approved"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-23 12:43:19.530874",
+ "modified": "2026-11-04 18:01:03.357893",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance Request",

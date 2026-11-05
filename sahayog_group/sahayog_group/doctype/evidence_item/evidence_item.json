@@ -14,7 +14,9 @@
   "period",
   "expiry_date",
   "arn__reference_no",
-  "remarks"
+  "remarks",
+  "uploaded_by",
+  "uploaded_at"
  ],
  "fields": [
   {
@@ -72,6 +74,23 @@
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "uploaded_by",
+   "fieldtype": "Link",
+   "label": "Uploaded By",
+   "options": "User",
+   "read_only": 1,
+   "in_list_view": 0,
+   "description": "User who uploaded this evidence file"
+  },
+  {
+   "fieldname": "uploaded_at",
+   "fieldtype": "Datetime",
+   "label": "Uploaded At",
+   "read_only": 1,
+   "in_list_view": 0,
+   "description": "Timestamp when file was uploaded"
   }
  ],
  "grid_page_length": 50,
@@ -81,7 +100,7 @@
  "modified": "2026-10-22 16:17:05.019430",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
- "name": "Compliance Evidence Item",
+ "name": "Evidence Item",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",

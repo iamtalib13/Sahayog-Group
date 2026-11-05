@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ComplianceEvidenceRule(Document):
+class EvidenceRule(Document):
 	pass
