@@ -2,27 +2,21 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "autoname": "field:unit_name",
+ "autoname": "format:{project} - {company}",
  "creation": "2026-10-19 15:48:56.546360",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "unit_name",
+  "project",
   "company",
+  "project_head",
   "go_live_status",
   "go_live_date",
+  "planned_opening_date",
   "place",
   "is_active"
  ],
  "fields": [
-  {
-   "fieldname": "unit_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Unit Name",
-   "reqd": 1,
-   "unique": 1
-  },
   {
    "depends_on": "eval:doc.go_live_status==\"Live\"",
    "fieldname": "go_live_date",
@@ -57,16 +51,45 @@
    "label": "Company",
    "options": "Compliance Company",
    "reqd": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "project_head",
+   "fieldtype": "Link",
+   "label": "Project Head",
+   "options": "User",
+   "description": "Person responsible for this project / hospital"
+  },
+  {
+   "fieldname": "planned_opening_date",
+   "fieldtype": "Date",
+   "label": "Planned Opening Date",
+   "description": "Target date for hospital opening / pre-opening readiness"
+  },
+  {
+   "fieldname": "cb_project_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project_description",
+   "fieldtype": "Small Text",
+   "label": "Description"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-23 12:37:57.207122",
+ "modified": "2026-10-24 10:59:11.273811",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance Project",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -88,5 +111,8 @@
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1
+ "track_changes": 1,
+ "title_field": "project",
+ "show_title_field_in_link": 1,
+ "search_fields": "project,company"
 }

@@ -2,24 +2,17 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "autoname": "field:department_name",
+ "autoname": "field:department",
  "creation": "2026-10-19 15:36:41.229759",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "department_name",
+  "department",
+  "department_head",
   "description",
   "is_active"
  ],
  "fields": [
-  {
-   "fieldname": "department_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Department Name",
-   "reqd": 1,
-   "unique": 1
-  },
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
@@ -30,12 +23,29 @@
    "fieldname": "is_active",
    "fieldtype": "Check",
    "label": "Is Active"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Department",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "department_head",
+   "fieldtype": "Link",
+   "label": "Department Head",
+   "options": "User",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Head of this department. Filled automatically as Department Head in Compliance and Compliance Request"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-22 12:49:42.105543",
+ "modified": "2026-10-24 11:00:09.216499",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance Department",

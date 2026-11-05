@@ -155,7 +155,14 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
+	"daily": [
+		"sahayog_group.sahayog_group.doctype.compliance.compliance.check_and_create_all_compliance_requests",
+		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.check_and_set_overdue",
+		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.send_compliance_alerts",
+	],
+}
+# old_scheduler = {
 # 	"all": [
 # 		"sahayog_group.tasks.all"
 # 	],

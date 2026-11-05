@@ -1,0 +1,427 @@
+{
+ "actions": [],
+ "creation": "2026-10-24 12:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "critical_days_section",
+  "critical_alert_days",
+  "critical_notify_section",
+  "critical_notify_responsible",
+  "critical_notify_unit_head",
+  "critical_notify_ceo",
+  "column_break_ofhn",
+  "critical_notify_dept_head",
+  "column_break_sxri",
+  "critical_notify_reviewer",
+  "column_break_koda",
+  "critical_notify_role",
+  "column_break_uodx",
+  "critical_urgent",
+  "high_days_section",
+  "high_alert_days",
+  "high_notify_section",
+  "high_notify_responsible",
+  "high_notify_unit_head",
+  "high_notify_ceo",
+  "high_cb_n1",
+  "high_notify_dept_head",
+  "high_cb_n2",
+  "high_notify_reviewer",
+  "high_cb_n3",
+  "high_notify_role",
+  "high_cb_n4",
+  "high_urgent",
+  "medium_days_section",
+  "medium_alert_days",
+  "medium_notify_section",
+  "medium_notify_responsible",
+  "medium_notify_unit_head",
+  "medium_notify_ceo",
+  "medium_cb_n1",
+  "medium_notify_dept_head",
+  "medium_cb_n2",
+  "medium_notify_reviewer",
+  "medium_cb_n3",
+  "medium_notify_role",
+  "medium_cb_n4",
+  "medium_urgent",
+  "low_days_section",
+  "low_alert_days",
+  "low_notify_section",
+  "low_notify_responsible",
+  "low_notify_unit_head",
+  "low_notify_ceo",
+  "low_cb_n1",
+  "low_notify_dept_head",
+  "low_cb_n2",
+  "low_notify_reviewer",
+  "low_cb_n3",
+  "low_notify_role",
+  "low_cb_n4",
+  "low_urgent",
+  "timing_section",
+  "overdue_grace_days",
+  "cb_timing_1",
+  "acknowledgement_window_days"
+ ],
+ "fields": [
+  {
+   "fieldname": "critical_days_section",
+   "fieldtype": "Section Break",
+   "label": "Critical Risk: Alert Days & who is notified"
+  },
+  {
+   "description": "Select days or create a new Alert Day",
+   "fieldname": "critical_alert_days",
+   "fieldtype": "Table MultiSelect",
+   "label": "Critical Alert Days",
+   "options": "Alert Day Item"
+  },
+  {
+   "default": "1",
+   "fieldname": "critical_notify_responsible",
+   "fieldtype": "Check",
+   "label": "Responsible Person"
+  },
+  {
+   "default": "1",
+   "fieldname": "critical_notify_dept_head",
+   "fieldtype": "Check",
+   "label": "Department Head"
+  },
+  {
+   "default": "0",
+   "fieldname": "critical_notify_reviewer",
+   "fieldtype": "Check",
+   "label": "Reviewer"
+  },
+  {
+   "description": "All users with this role are notified too (optional)",
+   "fieldname": "critical_notify_role",
+   "fieldtype": "Link",
+   "label": "Also Notify Role",
+   "options": "Role"
+  },
+  {
+   "default": "1",
+   "description": "Alerts sent 7 days or fewer before the due date are marked urgent",
+   "fieldname": "critical_urgent",
+   "fieldtype": "Check",
+   "label": "Urgent for last alerts"
+  },
+  {
+   "fieldname": "high_days_section",
+   "fieldtype": "Section Break",
+   "label": "High Risk: Alert Days"
+  },
+  {
+   "description": "Select days or create a new Alert Day",
+   "fieldname": "high_alert_days",
+   "fieldtype": "Table MultiSelect",
+   "label": "High Alert Days",
+   "options": "Alert Day Item"
+  },
+  {
+   "fieldname": "high_notify_section",
+   "fieldtype": "Section Break",
+   "label": "High Risk: who is notified"
+  },
+  {
+   "default": "1",
+   "fieldname": "high_notify_responsible",
+   "fieldtype": "Check",
+   "label": "Responsible Person"
+  },
+  {
+   "fieldname": "high_cb_n1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "high_notify_dept_head",
+   "fieldtype": "Check",
+   "label": "Department Head"
+  },
+  {
+   "fieldname": "high_cb_n2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "high_notify_reviewer",
+   "fieldtype": "Check",
+   "label": "Reviewer"
+  },
+  {
+   "fieldname": "high_cb_n3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "All users with this role are notified too (optional)",
+   "fieldname": "high_notify_role",
+   "fieldtype": "Link",
+   "label": "Also Notify Role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "high_cb_n4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Alerts sent 7 days or fewer before the due date are marked urgent",
+   "fieldname": "high_urgent",
+   "fieldtype": "Check",
+   "label": "Urgent for last alerts"
+  },
+  {
+   "fieldname": "medium_days_section",
+   "fieldtype": "Section Break",
+   "label": "Medium Risk: Alert Days"
+  },
+  {
+   "description": "Select days or create a new Alert Day",
+   "fieldname": "medium_alert_days",
+   "fieldtype": "Table MultiSelect",
+   "label": "Medium Alert Days",
+   "options": "Alert Day Item"
+  },
+  {
+   "fieldname": "medium_notify_section",
+   "fieldtype": "Section Break",
+   "label": "Medium Risk: who is notified"
+  },
+  {
+   "default": "1",
+   "fieldname": "medium_notify_responsible",
+   "fieldtype": "Check",
+   "label": "Responsible Person"
+  },
+  {
+   "fieldname": "medium_cb_n1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "medium_notify_dept_head",
+   "fieldtype": "Check",
+   "label": "Department Head"
+  },
+  {
+   "fieldname": "medium_cb_n2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "medium_notify_reviewer",
+   "fieldtype": "Check",
+   "label": "Reviewer"
+  },
+  {
+   "fieldname": "medium_cb_n3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "All users with this role are notified too (optional)",
+   "fieldname": "medium_notify_role",
+   "fieldtype": "Link",
+   "label": "Also Notify Role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "medium_cb_n4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Alerts sent 7 days or fewer before the due date are marked urgent",
+   "fieldname": "medium_urgent",
+   "fieldtype": "Check",
+   "label": "Urgent for last alerts"
+  },
+  {
+   "fieldname": "low_days_section",
+   "fieldtype": "Section Break",
+   "label": "Low Risk: Alert Days"
+  },
+  {
+   "description": "Select days or create a new Alert Day",
+   "fieldname": "low_alert_days",
+   "fieldtype": "Table MultiSelect",
+   "label": "Low Alert Days",
+   "options": "Alert Day Item"
+  },
+  {
+   "fieldname": "low_notify_section",
+   "fieldtype": "Section Break",
+   "label": "Low Risk: who is notified"
+  },
+  {
+   "default": "1",
+   "fieldname": "low_notify_responsible",
+   "fieldtype": "Check",
+   "label": "Responsible Person"
+  },
+  {
+   "fieldname": "low_cb_n1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "low_notify_dept_head",
+   "fieldtype": "Check",
+   "label": "Department Head"
+  },
+  {
+   "fieldname": "low_cb_n2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "low_notify_reviewer",
+   "fieldtype": "Check",
+   "label": "Reviewer"
+  },
+  {
+   "fieldname": "low_cb_n3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "All users with this role are notified too (optional)",
+   "fieldname": "low_notify_role",
+   "fieldtype": "Link",
+   "label": "Also Notify Role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "low_cb_n4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Alerts sent 7 days or fewer before the due date are marked urgent",
+   "fieldname": "low_urgent",
+   "fieldtype": "Check",
+   "label": "Urgent for last alerts"
+  },
+  {
+   "fieldname": "timing_section",
+   "fieldtype": "Section Break",
+   "label": "Timing"
+  },
+  {
+   "default": "2",
+   "description": "Days after the due date before an unverified record is escalated as overdue",
+   "fieldname": "overdue_grace_days",
+   "fieldtype": "Int",
+   "label": "Overdue Grace Days"
+  },
+  {
+   "fieldname": "cb_timing_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "2",
+   "description": "Days a recipient has to acknowledge an alert before the manager is notified",
+   "fieldname": "acknowledgement_window_days",
+   "fieldtype": "Int",
+   "label": "Acknowledgement Window Days"
+  },
+  {
+   "fieldname": "column_break_ofhn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_sxri",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_koda",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_uodx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "critical_notify_section",
+   "fieldtype": "Section Break",
+   "label": "Critical Risk: who is notified"
+  },
+  {
+   "fieldname": "critical_notify_unit_head",
+   "fieldtype": "Check",
+   "label": "Unit Head",
+   "default": "1"
+  },
+  {
+   "fieldname": "critical_notify_ceo",
+   "fieldtype": "Check",
+   "label": "CEO / Leadership",
+   "default": "1",
+   "description": "Notify CEO and leadership recipients for this risk tier"
+  },
+  {
+   "fieldname": "high_notify_unit_head",
+   "fieldtype": "Check",
+   "label": "Unit Head",
+   "default": "1"
+  },
+  {
+   "fieldname": "high_notify_ceo",
+   "fieldtype": "Check",
+   "label": "CEO / Leadership",
+   "default": "0",
+   "description": "Notify CEO and leadership recipients for this risk tier"
+  },
+  {
+   "fieldname": "medium_notify_unit_head",
+   "fieldtype": "Check",
+   "label": "Unit Head",
+   "default": "0"
+  },
+  {
+   "fieldname": "medium_notify_ceo",
+   "fieldtype": "Check",
+   "label": "CEO / Leadership",
+   "default": "0",
+   "description": "Notify CEO and leadership recipients for this risk tier"
+  },
+  {
+   "fieldname": "low_notify_unit_head",
+   "fieldtype": "Check",
+   "label": "Unit Head",
+   "default": "0"
+  },
+  {
+   "fieldname": "low_notify_ceo",
+   "fieldtype": "Check",
+   "label": "CEO / Leadership",
+   "default": "0",
+   "description": "Notify CEO and leadership recipients for this risk tier"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-24 15:41:39.460896",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Compliance Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
