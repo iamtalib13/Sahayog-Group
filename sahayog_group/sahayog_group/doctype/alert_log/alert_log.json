@@ -1,0 +1,237 @@
+{
+ "actions": [],
+ "autoname": "AL-.#####",
+ "creation": "2026-11-07 11:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "compliance_request",
+  "compliance",
+  "recipient",
+  "cb_alert_1",
+  "alert_type",
+  "days_before",
+  "sent_on",
+  "delivery_status",
+  "failure_reason",
+  "ack_section",
+  "acknowledged",
+  "acknowledged_on",
+  "cb_alert_2",
+  "escalated",
+  "escalated_on",
+  "escalated_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "compliance_request",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Compliance Request",
+   "options": "Compliance Request",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "compliance_request.compliance",
+   "fieldname": "compliance",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Compliance",
+   "options": "Compliance",
+   "read_only": 1
+  },
+  {
+   "description": "User who received this alert",
+   "fieldname": "recipient",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Recipient",
+   "options": "User",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb_alert_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "alert_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Alert Type",
+   "options": "Due Soon\nDue Date\nOverdue\nEscalation\nReassignment",
+   "read_only": 1
+  },
+  {
+   "description": "Days left before the due date when this alert was sent",
+   "fieldname": "days_before",
+   "fieldtype": "Int",
+   "label": "Days Before Due",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sent_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Sent On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Delivery Status",
+   "options": "Sent\nFailed",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.delivery_status=='Failed'",
+   "fieldname": "failure_reason",
+   "fieldtype": "Small Text",
+   "label": "Failure Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ack_section",
+   "fieldtype": "Section Break",
+   "label": "Acknowledgement and Escalation"
+  },
+  {
+   "fieldname": "acknowledged",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Acknowledged",
+   "read_only": 1
+  },
+  {
+   "fieldname": "acknowledged_on",
+   "fieldtype": "Datetime",
+   "label": "Acknowledged On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_alert_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Ticked when this alert was escalated to the manager because it was not acknowledged in time",
+   "fieldname": "escalated",
+   "fieldtype": "Check",
+   "label": "Escalated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "escalated_on",
+   "fieldtype": "Datetime",
+   "label": "Escalated On",
+   "read_only": 1
+  },
+  {
+   "description": "The unacknowledged alert that caused this escalation",
+   "fieldname": "escalated_from",
+   "fieldtype": "Link",
+   "label": "Escalated From",
+   "options": "Alert Log",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-07 11:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Alert Log",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Master Admin"
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Chairman"
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Executive"
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Viewer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Auditor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Coordinator"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Operations Head"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Facility Head"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Department Head"
+  },
+  {
+   "read": 1,
+   "role": "Compliance User"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Checker"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Project Head"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -8,20 +8,18 @@
  "engine": "InnoDB",
  "field_order": [
   "details_tab",
+  "is_active",
   "section_break_cgfj",
   "compliance",
-  "is_active",
-  "column_break_pthe",
-  "category",
-  "section_break_icdu",
-  "cb_details_1",
-  "project",
-  "company",
-  "column_break_pvtd",
   "department",
+  "project",
+  "column_break_pthe",
+  "company",
+  "category",
   "risk_tier",
-  "column_break_oxhu",
+  "applicability_section",
   "applicability_reviewer",
+  "cb_applicability",
   "applicability_review_date",
   "assignment_tab",
   "people_section",
@@ -42,6 +40,7 @@
   "cb_dates_1",
   "due_date_change_reason",
   "initiation_date",
+  "restart_work_date",
   "next_follow_up_date",
   "previous_record",
   "status_tab",
@@ -76,6 +75,7 @@
    "in_list_view": 1,
    "label": "Compliance",
    "options": "Compliance",
+   "permlevel": 2,
    "reqd": 1
   },
   {
@@ -85,10 +85,6 @@
    "label": "Category",
    "options": "Compliance Category",
    "read_only": 1
-  },
-  {
-   "fieldname": "cb_details_1",
-   "fieldtype": "Column Break"
   },
   {
    "fetch_from": "compliance.project",
@@ -107,10 +103,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_pvtd",
-   "fieldtype": "Column Break"
-  },
-  {
    "fetch_from": "compliance.department",
    "fieldname": "department",
    "fieldtype": "Link",
@@ -123,14 +115,16 @@
    "fieldname": "risk_tier",
    "fieldtype": "Select",
    "label": "Risk Tier",
-   "options": "Critical\nHigh\nMedium\nLow",
+   "options": "\nCritical\nHigh\nMedium\nLow",
    "read_only": 1
   },
   {
    "default": "1",
+   "depends_on": "eval:doc.compliance",
    "fieldname": "is_active",
    "fieldtype": "Check",
-   "label": "Is Active"
+   "label": "Is Active",
+   "permlevel": 2
   },
   {
    "fieldname": "people_section",
@@ -138,45 +132,44 @@
    "label": "People"
   },
   {
-   "fetch_from": "compliance.responsible_person",
    "fetch_if_empty": 1,
    "fieldname": "responsible_person",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Responsible Person",
    "options": "User",
+   "permlevel": 1,
    "reqd": 1
   },
   {
    "description": "Takes over if the Responsible Person is unavailable",
-   "fetch_from": "compliance.backup_owner",
    "fetch_if_empty": 1,
    "fieldname": "backup_owner",
    "fieldtype": "Link",
    "label": "Backup Owner",
-   "options": "User"
+   "options": "User",
+   "permlevel": 1
   },
   {
    "fieldname": "cb_people_1",
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "compliance.reviewer",
    "fetch_if_empty": 1,
    "fieldname": "reviewer",
    "fieldtype": "Link",
    "label": "Reviewer",
    "options": "User",
+   "permlevel": 1,
    "reqd": 1
   },
   {
-   "description": "Accountable manager for this record",
-   "fetch_from": "compliance.department_head",
    "fetch_if_empty": 1,
    "fieldname": "department_head",
    "fieldtype": "Link",
    "label": "Department Head",
    "options": "User",
+   "permlevel": 1,
    "reqd": 1
   },
   {
@@ -189,6 +182,7 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Due Date",
+   "permlevel": 2,
    "reqd": 1
   },
   {
@@ -204,16 +198,19 @@
    "fieldname": "due_date_change_reason",
    "fieldtype": "Small Text",
    "label": "Due Date Change Reason",
-   "mandatory_depends_on": "eval:doc.original_due_date && doc.due_date != doc.original_due_date"
+   "mandatory_depends_on": "eval:doc.original_due_date && doc.due_date != doc.original_due_date",
+   "permlevel": 2
   },
   {
    "fieldname": "cb_dates_1",
    "fieldtype": "Column Break"
   },
   {
+   "description": "Set automatically on the first Start Work",
    "fieldname": "initiation_date",
    "fieldtype": "Date",
-   "label": "Initiation Date"
+   "label": "Initiation Date",
+   "read_only": 1
   },
   {
    "description": "When to follow up next with the authority or vendor",
@@ -239,7 +236,8 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Draft\nNot Yet Applicable\nUpcoming\nAction Required\nIn Progress\nApplication Submitted\nAwaiting Authority / Third Party\nBlocked / At Risk\nCompletion Submitted\nClosed / Completed\nOverdue\nException Approved\nSuperseded / Inactive"
+   "options": "Draft\nNot Yet Applicable\nUpcoming\nAction Required\nIn Progress\nApplication Submitted\nAwaiting Authority / Third Party\nBlocked / At Risk\nCompletion Submitted\nClosed / Completed\nOverdue\nException Approved\nSuperseded / Inactive",
+   "permlevel": 2
   },
   {
    "depends_on": "eval:[\"Not Yet Applicable\",\"Superseded / Inactive\",\"Exception Approved\"].includes(doc.status)",
@@ -305,7 +303,8 @@
    "fieldname": "reviewer_decision",
    "fieldtype": "Select",
    "label": "Reviewer Decision",
-   "options": "\nApproved\nRejected"
+   "options": "\nApproved\nRejected",
+   "permlevel": 2
   },
   {
    "fieldname": "cb_closure_1",
@@ -350,27 +349,27 @@
    "options": "Evidence Item"
   },
   {
-   "description": "Head of the hospital / project unit",
-   "fetch_from": "compliance.unit_head",
    "fetch_if_empty": 1,
    "fieldname": "unit_head",
    "fieldtype": "Link",
    "label": "Unit Head",
-   "options": "User"
+   "options": "User",
+   "permlevel": 1
   },
   {
-   "fetch_from": "compliance.central_compliance_owner",
    "fetch_if_empty": 1,
    "fieldname": "central_compliance_owner",
    "fieldtype": "Link",
    "label": "Central Compliance Owner",
-   "options": "User"
+   "options": "User",
+   "permlevel": 1
   },
   {
    "description": "Certificate / licence expiry date for this record",
    "fieldname": "validity_end",
    "fieldtype": "Date",
-   "label": "Validity End Date"
+   "label": "Validity End Date",
+   "permlevel": 2
   },
   {
    "description": "Expected date for authority to issue final certificate / approval",
@@ -441,18 +440,28 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_icdu",
-   "fieldtype": "Section Break"
+   "fieldname": "applicability_section",
+   "fieldtype": "Section Break",
+   "label": "Applicability"
   },
   {
-   "fieldname": "column_break_oxhu",
+   "fieldname": "cb_applicability",
    "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.restart_work_date",
+   "description": "Date work was restarted after the record was reopened",
+   "fieldname": "restart_work_date",
+   "fieldtype": "Date",
+   "label": "Restart Work Date",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-11-04 18:01:03.357893",
+ "make_attachments_public": 0,
+ "modified": "2026-11-13 11:15:08.736623",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance Request",
@@ -470,6 +479,239 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Master Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Coordinator",
+   "write": 1
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Operations Head",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Facility Head",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Department Head",
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance User",
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Checker"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Project Head"
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Chairman"
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Executive"
+  },
+  {
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Viewer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Auditor"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Master Admin",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Coordinator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Facility Head",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Department Head",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Chairman"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Executive"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Viewer"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Operations Head"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance User"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Checker"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Auditor"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Compliance Project Head"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Master Admin",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Coordinator",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Facility Head",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Department Head",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Chairman"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Executive"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Viewer"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Operations Head"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance User"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Checker"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Auditor"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Compliance Project Head"
   }
  ],
  "row_format": "Dynamic",

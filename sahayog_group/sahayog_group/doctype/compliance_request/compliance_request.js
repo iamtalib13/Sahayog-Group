@@ -56,7 +56,7 @@ frappe.ui.form.on("Compliance Request", {
 		}
 
 		if (is_reviewer && s === "Completion Submitted") {
-			simple("Approve", true);
+			add("Approve", () => frappe.confirm(__("Are you sure you want to approve this record?"), () => call("run_action", { action: "Approve" })), true);
 			asking("Reject", [{ fieldname: "reason", fieldtype: "Small Text", label: __("Rejection Reason"), reqd: 1 }]);
 		}
 
@@ -94,4 +94,27 @@ function set_default_due_date(frm) {
 
 frappe.ui.form.on("Compliance Request", {
 	compliance: set_default_due_date,
+});
+
+// Acknowledge Alert button: shown only to a user who has an unacknowledged alert on this Request
+frappe.ui.form.on("Compliance Request", {
+	refresh(frm) {
+		if (frm.is_new()) return;
+		const path = "sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.";
+		frappe.call({
+			method: path + "get_pending_alert_count",
+			args: { name: frm.doc.name },
+			callback(r) {
+				if (!r.message) return;
+				frm.add_custom_button(__("Acknowledge Alert"), () => {
+					frappe.call({
+						method: path + "acknowledge_alerts",
+						args: { name: frm.doc.name },
+						freeze: true,
+						callback: () => frm.reload_doc(),
+					});
+				});
+			},
+		});
+	},
 });

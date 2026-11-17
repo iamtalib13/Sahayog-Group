@@ -28,14 +28,8 @@
   "applicability_review_date",
   "applicability_reviewer",
   "assignment_tab",
-  "people_section",
-  "responsible_person",
-  "backup_owner",
-  "unit_head",
-  "cb_people_1",
-  "reviewer",
-  "department_head",
-  "central_compliance_owner",
+  "assignments_section",
+  "assignments",
   "schedule_tab",
   "schedule_section",
   "recurrence",
@@ -50,6 +44,13 @@
   "evidence_tab",
   "evidence_section",
   "evidence_rules",
+  "alert_and_escalation_tab",
+  "alert_ladder_section",
+  "alert_days",
+  "alert_timing_section",
+  "overdue_grace_days",
+  "cb_alert_timing_1",
+  "acknowledgement_window_days",
   "request_tab",
   "html_filg"
  ],
@@ -143,41 +144,15 @@
    "label": "Assignment"
   },
   {
-   "fieldname": "people_section",
+   "fieldname": "assignments_section",
    "fieldtype": "Section Break",
-   "label": "Responsible People"
+   "label": "Assignments"
   },
   {
-   "fieldname": "responsible_person",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Responsible Person",
-   "options": "User",
-   "reqd": 1
-  },
-  {
-   "fieldname": "backup_owner",
-   "fieldtype": "Link",
-   "label": "Backup Owner",
-   "options": "User"
-  },
-  {
-   "fieldname": "cb_people_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "reviewer",
-   "fieldtype": "Link",
-   "label": "Reviewer",
-   "options": "User",
-   "reqd": 1
-  },
-  {
-   "fieldname": "department_head",
-   "fieldtype": "Link",
-   "label": "Department Head",
-   "options": "User",
-   "fetch_from": "department.department_head"
+   "fieldname": "assignments",
+   "fieldtype": "Table",
+   "label": "Assignments",
+   "options": "Compliance Assignment Item"
   },
   {
    "fieldname": "schedule_tab",
@@ -242,6 +217,46 @@
    "options": "Evidence Rule"
   },
   {
+   "fieldname": "alert_and_escalation_tab",
+   "fieldtype": "Tab Break",
+   "label": "Alert &  Escalation"
+  },
+  {
+   "description": "Define alert triggers and recipients before, on, or after due date",
+   "fieldname": "alert_ladder_section",
+   "fieldtype": "Section Break",
+   "label": "Escalation Ladder"
+  },
+  {
+   "fieldname": "alert_days",
+   "fieldtype": "Table",
+   "label": "Alert Schedule",
+   "options": "Alert Schedule"
+  },
+  {
+   "fieldname": "alert_timing_section",
+   "fieldtype": "Section Break",
+   "label": "Timing"
+  },
+  {
+   "default": "2",
+   "description": "Days after the due date before an unverified record is escalated as overdue",
+   "fieldname": "overdue_grace_days",
+   "fieldtype": "Int",
+   "label": "Overdue Grace Days"
+  },
+  {
+   "fieldname": "cb_alert_timing_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "2",
+   "description": "Days a recipient has to acknowledge an alert before escalation",
+   "fieldname": "acknowledgement_window_days",
+   "fieldtype": "Int",
+   "label": "Acknowledgement Window Days"
+  },
+  {
    "fieldname": "request_tab",
    "fieldtype": "Tab Break",
    "label": "Request"
@@ -279,20 +294,6 @@
    "fieldname": "applicable_service",
    "fieldtype": "Data",
    "label": "Applicable Service / Unit"
-  },
-  {
-   "description": "Head of the hospital / project unit",
-   "fieldname": "unit_head",
-   "fieldtype": "Link",
-   "label": "Unit Head",
-   "options": "User"
-  },
-  {
-   "description": "Central group compliance owner if applicable",
-   "fieldname": "central_compliance_owner",
-   "fieldtype": "Link",
-   "label": "Central Compliance Owner",
-   "options": "User"
   },
   {
    "description": "Certificate / licence expiry date at record level",

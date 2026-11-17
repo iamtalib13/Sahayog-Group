@@ -1,0 +1,116 @@
+{
+ "actions": [],
+ "creation": "2026-11-16 12:40:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "offset_type",
+  "days",
+  "cb_targets",
+  "notify_responsible",
+  "notify_dept_head",
+  "notify_unit_head",
+  "notify_reviewer",
+  "notify_central_owner",
+  "notify_ceo",
+  "notify_chairmans_office",
+  "cb_opt",
+  "is_urgent"
+ ],
+ "fields": [
+  {
+   "default": "Before Due Date",
+   "fieldname": "offset_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "When (Offset)",
+   "options": "Before Due Date\nOn Due Date\nAfter Due Date",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.offset_type != 'On Due Date'",
+   "fieldname": "days",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Days",
+   "mandatory_depends_on": "eval:doc.offset_type != 'On Due Date'"
+  },
+  {
+   "fieldname": "cb_targets",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_responsible",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Responsible"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_dept_head",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Department Head"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_unit_head",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Unit Head"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_reviewer",
+   "fieldtype": "Check",
+   "label": "Reviewer"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_central_owner",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Central Owner / Ops Head"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_ceo",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "CEO"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_chairmans_office",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Chairman's Office"
+  },
+  {
+   "fieldname": "cb_opt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_urgent",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Urgent"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-16 12:40:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Alert Schedule",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

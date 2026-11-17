@@ -60,17 +60,17 @@
    "reqd": 1
   },
   {
+   "description": "Person responsible for this project / hospital",
    "fieldname": "project_head",
    "fieldtype": "Link",
    "label": "Project Head",
-   "options": "User",
-   "description": "Person responsible for this project / hospital"
+   "options": "User"
   },
   {
+   "description": "Target date for hospital opening / pre-opening readiness",
    "fieldname": "planned_opening_date",
    "fieldtype": "Date",
-   "label": "Planned Opening Date",
-   "description": "Target date for hospital opening / pre-opening readiness"
+   "label": "Planned Opening Date"
   },
   {
    "fieldname": "cb_project_1",
@@ -103,16 +103,72 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Compliance Master Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Compliance Project Head"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Chairman"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Executive"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Viewer"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Auditor"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Coordinator"
+  },
+  {
+   "read": 1,
+   "role": "Compliance Operations Head"
+  },
+  {
+   "role": "Compliance Facility Head",
+   "select": 1
+  },
+  {
+   "role": "Compliance Department Head",
+   "select": 1
+  },
+  {
+   "role": "Compliance User",
+   "select": 1
+  },
+  {
+   "role": "Compliance Checker",
+   "select": 1
   }
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
+ "search_fields": "project,company",
+ "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1,
  "title_field": "project",
- "show_title_field_in_link": 1,
- "search_fields": "project,company"
+ "track_changes": 1
 }

@@ -7,8 +7,26 @@ from frappe.utils import add_days, add_months, getdate, nowdate
 class Compliance(Document):
     def validate(self):
         self.compliance = (self.compliance or "").strip()
+        self.validate_assignments()
         self.validate_duplicate()
         self.validate_maker_checker()
+
+    def get_assignment_user(self, role):
+        for row in self.get("assignments") or []:
+            if row.role == role:
+                return row.user
+        return None
+
+    def validate_assignments(self):
+        seen_roles = set()
+        for idx, row in enumerate(self.get("assignments") or [], 1):
+            if not row.role:
+                frappe.throw(_("Row {0}: Role is required in Assignments.").format(idx), title=_("Assignments"))
+            if not row.user:
+                frappe.throw(_("Row {0}: User is required in Assignments.").format(idx), title=_("Assignments"))
+            if row.role in seen_roles:
+                frappe.throw(_("Role {0} is added more than once in Assignments.").format(frappe.bold(row.role)), title=_("Assignments"))
+            seen_roles.add(row.role)
 
     def validate_duplicate(self):
         """Same Compliance Name is allowed for a different Department / Project / Company, not for the same combination."""
@@ -27,7 +45,9 @@ class Compliance(Document):
 
     def validate_maker_checker(self):
         """Critical compliance: Reviewer must be a different person from the Responsible Person (BRD section 8)."""
-        if self.risk_tier == "Critical" and self.reviewer and self.reviewer == self.responsible_person:
+        responsible = self.get_assignment_user("Responsible Person")
+        reviewer = self.get_assignment_user("Reviewer")
+        if self.risk_tier == "Critical" and reviewer and reviewer == responsible:
             frappe.throw(
                 _("For Risk Tier Critical the Reviewer must be a different person from the Responsible Person."),
                 title=_("Maker-Checker"),
@@ -99,6 +119,14 @@ def auto_create_compliance_requests_for_doc(doc):
 
 
 def create_request(compliance_doc, start_date, due_date, previous_record=None):
+    def get_role_user(role):
+        if hasattr(compliance_doc, "get_assignment_user"):
+            return compliance_doc.get_assignment_user(role)
+        for row in compliance_doc.get("assignments") or []:
+            if row.get("role") == role:
+                return row.get("user")
+        return None
+
     req = frappe.get_doc({
         "doctype": "Compliance Request",
         "compliance": compliance_doc.name,
@@ -107,10 +135,12 @@ def create_request(compliance_doc, start_date, due_date, previous_record=None):
         "department": compliance_doc.department,
         "company": compliance_doc.company,
         "risk_tier": compliance_doc.risk_tier,
-        "responsible_person": compliance_doc.responsible_person,
-        "backup_owner": compliance_doc.backup_owner,
-        "reviewer": compliance_doc.reviewer,
-        "department_head": compliance_doc.department_head,
+        "responsible_person": get_role_user("Responsible Person"),
+        "backup_owner": get_role_user("Backup Owner"),
+        "reviewer": get_role_user("Reviewer"),
+        "department_head": get_role_user("Department Head"),
+        "unit_head": get_role_user("Unit Head"),
+        "central_compliance_owner": get_role_user("Central Compliance Owner"),
         "due_date": due_date,
         "original_due_date": due_date,
         "status": "Upcoming",
@@ -177,7 +207,8 @@ def get_requests_html(compliance_name=None):
             start_d = frappe.format(start_src, {"fieldtype": "Date"}) if start_src else "-"
             due_d = frappe.format(r.due_date, {"fieldtype": "Date"}) if r.due_date else "-"
             closed_d = frappe.format(r.closed_on, {"fieldtype": "Date"}) if r.closed_on else "-"
-            user_val = r.responsible_person or doc.responsible_person or "-"
+            resp_user = doc.get_assignment_user("Responsible Person") if hasattr(doc, "get_assignment_user") else None
+            user_val = r.responsible_person or resp_user or "-"
             req_link = f'<a href="/app/compliance-request/{r.name}" style="font-weight: 600;">{r.name}</a>'
             badge = get_badge(r.status)
 
@@ -197,12 +228,13 @@ def get_requests_html(compliance_name=None):
         c1_due = _calc_due_date(c1_start, doc.recurrence) if c1_start else None
         c1_start_str = frappe.format(c1_start, {"fieldtype": "Date"}) if c1_start else "-"
         c1_due_str = frappe.format(c1_due, {"fieldtype": "Date"}) if c1_due else "-"
+        resp_user = doc.get_assignment_user("Responsible Person") if hasattr(doc, "get_assignment_user") else "-"
         rows_html.append(f"""
             <tr>
                 <td><span class="text-muted">Not Generated Yet</span></td>
                 <td>{c1_start_str}</td>
                 <td>{c1_due_str}</td>
-                <td>{doc.responsible_person or "-"}</td>
+                <td>{resp_user or "-"}</td>
                 <td>-</td>
                 <td>{get_badge("Not Started")}</td>
             </tr>

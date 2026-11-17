@@ -160,6 +160,7 @@ scheduler_events = {
 		"sahayog_group.sahayog_group.doctype.compliance.compliance.check_and_create_all_compliance_requests",
 		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.check_and_set_overdue",
 		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.send_compliance_alerts",
+		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.escalate_unacknowledged_alerts",
 	],
 }
 # old_scheduler = {
@@ -269,3 +270,25 @@ scheduler_events = {
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+# ---- Compliance: roles, scope and permissions ----
+permission_query_conditions = {
+	"Compliance Request": "sahayog_group.sahayog_group.permissions.request_conditions",
+	"Compliance": "sahayog_group.sahayog_group.permissions.compliance_conditions",
+	"Alert Log": "sahayog_group.sahayog_group.permissions.alert_log_conditions",
+	"Compliance Project": "sahayog_group.sahayog_group.permissions.project_conditions",
+}
+
+has_permission = {
+	"Compliance Request": "sahayog_group.sahayog_group.permissions.has_permission",
+	"Compliance": "sahayog_group.sahayog_group.permissions.has_permission",
+	"Compliance Project": "sahayog_group.sahayog_group.permissions.project_has_permission",
+}
+
+doc_events = {
+	"Compliance": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
+	"Compliance Department": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
+	"Compliance Project": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
+}
+
+after_migrate = ["sahayog_group.sahayog_group.roles.setup_roles"]
