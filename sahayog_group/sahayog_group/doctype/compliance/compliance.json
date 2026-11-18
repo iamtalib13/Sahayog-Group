@@ -16,6 +16,7 @@
   "is_active",
   "cb_details_1",
   "department",
+  "department_head",
   "company",
   "obligation_type",
   "issuing_authority",
@@ -38,6 +39,12 @@
   "notice_period_days",
   "cb_schedule_1",
   "days_to_start_in_advance",
+  "precreate_section",
+  "precreate_status",
+  "precreate_period",
+  "cb_precreate_1",
+  "precreate_count",
+  "precreate_requested_by",
   "risk_tier",
   "is_critical",
   "risk_consequence",
@@ -313,12 +320,56 @@
    "fieldname": "risk_consequence",
    "fieldtype": "Small Text",
    "label": "Risk / Consequence"
+  },
+  {
+   "fieldname": "department_head",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Department Head",
+   "read_only": 1,
+   "fetch_from": "department.department_head",
+   "hidden": 1
+  },
+  {
+   "fieldname": "precreate_section",
+   "fieldtype": "Section Break",
+   "label": "Pre-create Requests"
+  },
+  {
+   "fieldname": "precreate_status",
+   "fieldtype": "Data",
+   "label": "Pre-create Status",
+   "read_only": 1,
+   "description": "Use the Pre-create Records Request button"
+  },
+  {
+   "fieldname": "precreate_period",
+   "fieldtype": "Data",
+   "label": "Pre-create Recurrence",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_precreate_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "precreate_count",
+   "fieldtype": "Int",
+   "label": "Records Requested",
+   "read_only": 1
+  },
+  {
+   "fieldname": "precreate_requested_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Requested By",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-11-04 17:15:13.499852",
+ "modified": "2026-11-18 15:45:12.091603",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",

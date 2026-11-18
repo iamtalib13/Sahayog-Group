@@ -7,9 +7,24 @@ from frappe.utils import add_days, add_months, getdate, nowdate
 class Compliance(Document):
     def validate(self):
         self.compliance = (self.compliance or "").strip()
+        self.fill_department_head()
         self.validate_assignments()
         self.validate_duplicate()
         self.validate_maker_checker()
+
+    def fill_department_head(self):
+        """Department Head comes from the Compliance Department and is kept in Assignments."""
+        if not self.department:
+            return
+        head = frappe.db.get_value("Compliance Department", self.department, "department_head")
+        if not head:
+            return
+        self.department_head = head
+        for row in self.get("assignments") or []:
+            if row.role == "Department Head":
+                row.user = head
+                return
+        self.append("assignments", {"role": "Department Head", "user": head})
 
     def get_assignment_user(self, role):
         for row in self.get("assignments") or []:
@@ -152,8 +167,205 @@ def create_request(compliance_doc, start_date, due_date, previous_record=None):
 
 
 def check_and_create_all_compliance_requests():
-    """Daily scheduler job"""
-    return  # Requests are created manually; automatic creation is switched off
+    """Daily scheduler job: creates the next Request when today reaches (due-cycle start - days in advance)."""
+    names = frappe.get_all("Compliance", filters={"is_active": 1, "start_date": ["is", "set"]}, pluck="name")
+    for name in names:
+        try:
+            auto_create_compliance_requests_for_doc(frappe.get_doc("Compliance", name))
+            frappe.db.commit()
+        except Exception:
+            frappe.db.rollback()
+            frappe.log_error(frappe.get_traceback(), "Auto-create Compliance Request failed: %s" % name)
+
+
+MASTER_ROLES = ("System Manager", "Compliance Master Admin")
+PRECREATE_MAX = 120
+
+
+def _is_master(user=None):
+    return bool(set(MASTER_ROLES) & set(frappe.get_roles(user or frappe.session.user)))
+
+
+def _notify(users, subject, message, doc):
+    """In-app notification (bell icon) plus an email to each person."""
+    from frappe.utils import escape_html, get_url_to_form
+
+    link = get_url_to_form("Compliance", doc.name)
+    label = "{0} ({1})".format(doc.compliance, doc.name)
+    body = "<p>{0}</p><p><a href='{1}'>{2}</a></p>".format(escape_html(message), link, escape_html(label))
+    for user in dict.fromkeys(u for u in users if u):
+        try:
+            frappe.get_doc({
+                "doctype": "Notification Log",
+                "for_user": user,
+                "from_user": frappe.session.user,
+                "type": "Alert",
+                "document_type": "Compliance",
+                "document_name": doc.name,
+                "subject": escape_html(subject),
+                "email_content": body,
+            }).insert(ignore_permissions=True)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Pre-create notification failed")
+        email = frappe.db.get_value("User", user, "email")
+        if email:
+            try:
+                frappe.sendmail(
+                    recipients=[email], subject=subject, message=body,
+                    reference_doctype="Compliance", reference_name=doc.name,
+                )
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), "Pre-create email failed")
+
+
+def _approvers(doc):
+    """The person who created the Compliance; if that person is not a Master, every Compliance Master Admin."""
+    users = [doc.owner]
+    if not _is_master(doc.owner):
+        users += frappe.get_all("Has Role", filters={"role": "Compliance Master Admin", "parenttype": "User"}, pluck="parent")
+    return users
+
+
+def _responsible(doc):
+    return doc.get_assignment_user("Responsible Person")
+
+
+def _set_precreate(name, **values):
+    frappe.db.set_value("Compliance", name, values, update_modified=False)
+
+
+def _create_cycles(doc, count):
+    """Create `count` more Requests after the ones that already exist. Nothing is duplicated."""
+    recurring = bool(doc.recurrence and doc.recurrence != "One-time")
+    existing = frappe.get_all(
+        "Compliance Request",
+        filters={"compliance": doc.name, "status": ["!=", "Superseded / Inactive"]},
+        fields=["name", "due_date"],
+        order_by="due_date asc",
+    )
+    existing = [r for r in existing if r.due_date]
+    dues = {getdate(r.due_date): r.name for r in existing}
+    if existing:
+        if not recurring:
+            return 0
+        start, previous = getdate(existing[-1].due_date), existing[-1].name
+    else:
+        start, previous = getdate(doc.start_date), None
+
+    created = 0
+    try:
+        for i in range(count):
+            due = _calc_due_date(start, doc.recurrence)
+            if due in dues:
+                previous = dues[due]
+            else:
+                req = create_request(doc, start, due, previous_record=previous)
+                dues[due] = req.name
+                previous = req.name
+                created += 1
+            if not recurring:
+                break
+            start = due
+    except Exception:
+        frappe.db.rollback()
+        raise
+    return created
+
+
+def _accept(doc, count, requested_by):
+    created = _create_cycles(doc, count)
+    _set_precreate(doc.name, precreate_status="Created", precreate_count=count)
+    _notify(
+        [requested_by, _responsible(doc)],
+        "Records created for {0}".format(doc.compliance),
+        "{0} record(s) have been created in advance for this compliance.".format(created),
+        doc,
+    )
+    return {"state": "Created", "created": created, "message": _("{0} record(s) created.").format(created)}
+
+
+@frappe.whitelist()
+def precreate_ask(compliance, answer):
+    """Asked from the Compliance Master / System Manager when a Compliance is saved for the first time."""
+    doc = frappe.get_doc("Compliance", compliance)
+    doc.check_permission("read")
+    if not _is_master():
+        frappe.throw(_("Only a Compliance Master or System Manager can answer this."), title=_("Pre-create"))
+
+    if str(answer).strip().lower() != "yes":
+        _set_precreate(compliance, precreate_status="Not Required")
+        return {"state": "Not Required", "message": _("Records will be created automatically before their due date.")}
+
+    responsible = _responsible(doc)
+    if not responsible:
+        frappe.throw(_("Add a Responsible Person in Assignments first."), title=_("Pre-create"))
+    _set_precreate(compliance, precreate_status="Asked")
+    _notify(
+        [responsible],
+        "Pre-create records for {0}?".format(doc.compliance),
+        "Do you want to pre-create records in advance for this compliance? "
+        "Open it and click 'Pre-create Records Request' to choose how many records you need.",
+        doc,
+    )
+    return {"state": "Asked", "message": _("The Responsible Person has been notified.")}
+
+
+@frappe.whitelist()
+def precreate_send_request(compliance, count):
+    """Responsible Person asks for N records. A Master / System Manager using the button creates them directly."""
+    doc = frappe.get_doc("Compliance", compliance)
+    doc.check_permission("read")
+    user = frappe.session.user
+    master = _is_master()
+    if not master and user not in (_responsible(doc), doc.get_assignment_user("Backup Owner")):
+        frappe.throw(_("Only the Responsible Person or a Compliance Master can do this."), title=_("Pre-create"))
+    if not doc.is_active:
+        frappe.throw(_("This Compliance is not active."), title=_("Pre-create"))
+    if not doc.start_date:
+        frappe.throw(_("Set the Start Date first."), title=_("Pre-create"))
+    count = int(count or 0)
+    if count < 1 or count > PRECREATE_MAX:
+        frappe.throw(_("Enter a count between 1 and {0}.").format(PRECREATE_MAX), title=_("Pre-create"))
+
+    _set_precreate(
+        compliance, precreate_status="Requested", precreate_count=count,
+        precreate_period=doc.recurrence, precreate_requested_by=user,
+    )
+    if master:
+        return _accept(doc, count, user)
+
+    _notify(
+        _approvers(doc),
+        "Pre-create request: {0}".format(doc.compliance),
+        "{0} has requested {1} record(s) to be created in advance for this compliance. "
+        "Open it to accept or reject the request.".format(frappe.utils.get_fullname(user), count),
+        doc,
+    )
+    return {"state": "Requested", "message": _("Request sent")}
+
+
+@frappe.whitelist()
+def precreate_decide(compliance, decision):
+    """Compliance Master / System Manager accepts or rejects the request."""
+    doc = frappe.get_doc("Compliance", compliance)
+    doc.check_permission("read")
+    if not _is_master():
+        frappe.throw(_("Only a Compliance Master or System Manager can accept or reject."), title=_("Pre-create"))
+    if doc.precreate_status != "Requested":
+        frappe.throw(_("There is no pending pre-create request."), title=_("Pre-create"))
+
+    requested_by = doc.precreate_requested_by
+    if str(decision).strip().lower() == "accept":
+        return _accept(doc, int(doc.precreate_count or 0), requested_by)
+
+    _set_precreate(compliance, precreate_status="Rejected")
+    _notify(
+        [requested_by, _responsible(doc)],
+        "Pre-create request rejected: {0}".format(doc.compliance),
+        "Your request to pre-create records for this compliance has been rejected.",
+        doc,
+    )
+    return {"state": "Rejected", "message": _("Request rejected.")}
 
 
 @frappe.whitelist()
