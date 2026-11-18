@@ -277,18 +277,30 @@ permission_query_conditions = {
 	"Compliance": "sahayog_group.sahayog_group.permissions.compliance_conditions",
 	"Alert Log": "sahayog_group.sahayog_group.permissions.alert_log_conditions",
 	"Compliance Project": "sahayog_group.sahayog_group.permissions.project_conditions",
+	"Compliance Audit Log": "sahayog_group.sahayog_group.permissions.audit_log_conditions",
+	"Evidence File Version": "sahayog_group.sahayog_group.permissions.version_conditions",
 }
 
 has_permission = {
 	"Compliance Request": "sahayog_group.sahayog_group.permissions.has_permission",
 	"Compliance": "sahayog_group.sahayog_group.permissions.has_permission",
 	"Compliance Project": "sahayog_group.sahayog_group.permissions.project_has_permission",
+	"Compliance Audit Log": "sahayog_group.sahayog_group.permissions.linked_has_permission",
+	"Evidence File Version": "sahayog_group.sahayog_group.permissions.linked_has_permission",
 }
 
 doc_events = {
 	"Compliance": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
 	"Compliance Department": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
 	"Compliance Project": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
+	"Compliance Request": {
+		"validate": "sahayog_group.sahayog_group.audit_controls.request_validate",
+		"on_update": "sahayog_group.sahayog_group.audit_controls.request_on_update",
+	},
+}
+
+doctype_js = {
+	"Compliance Request": "public/js/compliance_request_brd.js",
 }
 
 after_migrate = ["sahayog_group.sahayog_group.roles.setup_roles"]

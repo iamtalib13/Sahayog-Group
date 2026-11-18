@@ -51,6 +51,12 @@ class ComplianceRequest(Document):
         frappe.logger("compliance_closure").warning(
             f"{self.name or 'new'} | user={frappe.session.user} | status={self.status} | {message}"
         )
+        from sahayog_group.sahayog_group.audit import log_event
+
+        log_event(
+            "Closure Blocked" if self.status in CLOSURE_STATUSES else "Action Blocked",
+            "Compliance Request", self.name, request=self.name, details=message, new=self.status, commit=True,
+        )
         frappe.throw(message, title=_("Action Blocked"))
 
     def requires_maker_checker(self):
@@ -194,7 +200,7 @@ class ComplianceRequest(Document):
     # ---------- status rules ----------
     def validate_status_requirements(self):
         has_file = any(row.file for row in self.evidence_items)
-        stop = lambda msg: frappe.throw(msg, title=_("Action Blocked"))
+        stop = lambda msg: self.block(msg)
 
         if self.status == "Application Submitted":
             if not self.application_reference_no:
@@ -619,6 +625,10 @@ def _send_alert(rec, user, alert_type, days_before=0, urgent=False, note=None, e
             log.failure_reason = str(e)[:500]
             frappe.logger("compliance_alerts").error(f"Alert FAILED: {rec.name} | {alert_type} | {user} | {e}")
     log.insert(ignore_permissions=True)
+    if alert_type == "Escalation":
+        from sahayog_group.sahayog_group.audit import log_event
+
+        log_event("Escalated", REQUEST_DOCTYPE, rec.name, request=rec.name, new=user, details=note, old=escalated_from)
     return log
 
 

@@ -84,3 +84,34 @@ def project_has_permission(doc, ptype=None, user=None, debug=False):
     if _is_group(user) or ptype == "create" or doc.is_new():
         return True
     return "Compliance Project Head" in set(frappe.get_roles(user)) and doc.get("project_head") == user
+
+
+
+
+# ---- BRD additions: audit log, evidence versions follow the scope of their Compliance Request ----
+def _linked_conditions(doctype, user):
+    user = user or frappe.session.user
+    if _is_group(user):
+        return ""
+    req = _conditions("Compliance Request", user)
+    if req == "1 = 0":
+        return "1 = 0"
+    return "`tab{0}`.compliance_request in (select name from `tabCompliance Request` where {1})".format(doctype, req)
+
+
+def audit_log_conditions(user=None):
+    return _linked_conditions("Compliance Audit Log", user)
+
+
+def version_conditions(user=None):
+    return _linked_conditions("Evidence File Version", user)
+
+
+def linked_has_permission(doc, ptype=None, user=None, debug=False):
+    user = user or frappe.session.user
+    if _is_group(user) or ptype == "create" or doc.is_new():
+        return True
+    if doc.get("compliance_request"):
+        return bool(frappe.has_permission("Compliance Request", "read", doc.compliance_request, user=user))
+    return False
+
