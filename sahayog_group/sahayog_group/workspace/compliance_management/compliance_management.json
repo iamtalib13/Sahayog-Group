@@ -6,14 +6,14 @@
  "docstatus": 0,
  "doctype": "Workspace",
  "hide_custom": 0,
- "icon": "",
+ "icon": "shield-check",
  "idx": 0,
  "indicator_color": "green",
  "is_hidden": 0,
- "label": "Compliance Management",
+ "label": "Compliance MS",
  "link_type": "DocType",
  "links": [],
- "modified": "2026-11-19 16:19:37.490757",
+ "modified": "2026-11-19 16:30:00.000000",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance Management",
@@ -22,16 +22,70 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 0.0,
+ "sequence_id": 1.0,
  "shortcuts": [
   {
    "doc_view": "List",
    "label": "Compliance",
    "link_to": "Compliance",
    "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Compliance Request",
+   "link_to": "Compliance Request",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Compliance Project",
+   "link_to": "Compliance Project",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Compliance Company",
+   "link_to": "Compliance Company",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Compliance Category",
+   "link_to": "Compliance Category",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Compliance Department",
+   "link_to": "Compliance Department",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Evidence Type",
+   "link_to": "Evidence Type",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Alert Log",
+   "link_to": "Alert Log",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Compliance Audit Log",
+   "link_to": "Compliance Audit Log",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Evidence File Version",
+   "link_to": "Evidence File Version",
+   "type": "DocType"
   }
  ],
  "standard": 1,
- "title": "Compliance Management",
+ "title": "Compliance MS",
  "type": "Workspace"
 }

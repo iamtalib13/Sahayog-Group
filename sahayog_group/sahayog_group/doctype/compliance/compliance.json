@@ -2,64 +2,51 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
- "autoname": "COMP-.###",
+ "autoname": "COMP-.YYYY.-.#####",
  "creation": "2026-10-19 16:01:48.739832",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "details_tab",
   "compliance_details_section",
-  "compliance",
+  "compliance_name",
   "category",
-  "subcategory",
-  "project",
-  "is_active",
-  "cb_details_1",
-  "department",
-  "department_head",
-  "company",
   "obligation_type",
+  "cb_details_1",
+  "compliance_company",
+  "department",
   "issuing_authority",
+  "department_head",
+  "cb_details_2",
+  "is_active",
+  "is_project_based",
+  "project",
   "description_section",
   "description",
+  "cb_desc_1",
   "legal_basis",
-  "applicable_service",
-  "cb_applicability_1",
-  "location_state",
-  "applicability_review_date",
-  "applicability_reviewer",
+  "schedule_tab",
+  "schedule_section",
+  "start_date",
+  "end_date",
+  "cb_schedule_1",
+  "recurrence",
+  "days_to_start_in_advance",
+  "cb_schedule_2",
+  "risk_tier",
+  "is_critical",
+  "alert_days",
   "assignment_tab",
   "assignments_section",
   "assignments",
-  "schedule_tab",
-  "schedule_section",
-  "recurrence",
-  "start_date",
-  "validity_end",
-  "notice_period_days",
-  "cb_schedule_1",
-  "days_to_start_in_advance",
-  "precreate_section",
-  "precreate_status",
-  "precreate_period",
-  "cb_precreate_1",
-  "precreate_count",
-  "precreate_requested_by",
-  "risk_tier",
-  "is_critical",
-  "risk_consequence",
   "evidence_tab",
   "evidence_section",
   "evidence_rules",
   "alert_and_escalation_tab",
-  "alert_ladder_section",
-  "alert_days",
   "alert_timing_section",
   "overdue_grace_days",
   "cb_alert_timing_1",
-  "acknowledgement_window_days",
-  "request_tab",
-  "html_filg"
+  "acknowledgement_window_days"
  ],
  "fields": [
   {
@@ -70,13 +57,13 @@
   {
    "fieldname": "compliance_details_section",
    "fieldtype": "Section Break",
-   "label": "Compliance Details"
+   "label": "Primary Details"
   },
   {
-   "fieldname": "compliance",
+   "fieldname": "compliance_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Compliance",
+   "label": "Compliance Name / Title",
    "reqd": 1
   },
   {
@@ -88,15 +75,22 @@
    "reqd": 1
   },
   {
-   "fieldname": "project",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Project",
-   "options": "Compliance Project"
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "label": "Obligation Type",
+   "options": "\nLicence\nFiling\nAgreement\nRenewal\nInspection\nApproval\nOther",
+   "reqd": 1
   },
   {
    "fieldname": "cb_details_1",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "compliance_company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Compliance Company",
+   "reqd": 1
   },
   {
    "fieldname": "department",
@@ -107,22 +101,21 @@
    "reqd": 1
   },
   {
-   "fetch_from": "project.company",
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Compliance Company"
-  },
-  {
-   "fieldname": "obligation_type",
-   "fieldtype": "Select",
-   "label": "Obligation Type",
-   "options": "Licence / Registration\nRecurring Filing\nContract / Agreement\nRenewal\nInspection / Service\nProject Approval\nOther"
-  },
-  {
    "fieldname": "issuing_authority",
    "fieldtype": "Data",
    "label": "Issuing Authority"
+  },
+  {
+   "fieldname": "department_head",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Department Head",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_details_2",
+   "fieldtype": "Column Break"
   },
   {
    "default": "1",
@@ -131,9 +124,23 @@
    "label": "Is Active"
   },
   {
+   "default": "0",
+   "fieldname": "is_project_based",
+   "fieldtype": "Check",
+   "label": "Is Project Based"
+  },
+  {
+   "depends_on": "eval:doc.is_project_based == 1",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "mandatory_depends_on": "eval:doc.is_project_based == 1",
+   "options": "Compliance Project"
+  },
+  {
    "fieldname": "description_section",
    "fieldtype": "Section Break",
-   "label": "Description & Legal Basis"
+   "label": "Scope & Legal Reference"
   },
   {
    "fieldname": "description",
@@ -141,9 +148,79 @@
    "label": "Description"
   },
   {
+   "fieldname": "cb_desc_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "legal_basis",
    "fieldtype": "Small Text",
    "label": "Legal / Contractual Basis"
+  },
+  {
+   "fieldname": "schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Schedule & Risk"
+  },
+  {
+   "fieldname": "schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Timeline & Recurrence"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start / Effective Date",
+   "reqd": 1
+  },
+  {
+   "description": "Applicable for licences, agreements or limited-period obligations",
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "Validity End / Expiry Date"
+  },
+  {
+   "fieldname": "cb_schedule_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Annual",
+   "fieldname": "recurrence",
+   "fieldtype": "Select",
+   "label": "Recurrence",
+   "options": "One-Time\nMonthly\nQuarterly\nHalf-Yearly\nAnnual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years\nEvent-Based",
+   "reqd": 1
+  },
+  {
+   "default": "30",
+   "description": "Lead time before due date to initiate request",
+   "fieldname": "days_to_start_in_advance",
+   "fieldtype": "Int",
+   "label": "Days to Start in Advance"
+  },
+  {
+   "fieldname": "cb_schedule_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "risk_tier",
+   "fieldtype": "Select",
+   "label": "Risk Tier",
+   "options": "Low\nMedium\nHigh\nCritical",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "Strict Maker-Checker control: Submitter cannot approve",
+   "fieldname": "is_critical",
+   "fieldtype": "Check",
+   "label": "Is Critical (Enforce Maker-Checker)"
+  },
+  {
+   "fieldname": "alert_days",
+   "fieldtype": "Table",
+   "label": "Alert Schedule",
+   "options": "Alert Schedule"
   },
   {
    "fieldname": "assignment_tab",
@@ -153,7 +230,7 @@
   {
    "fieldname": "assignments_section",
    "fieldtype": "Section Break",
-   "label": "Assignments"
+   "label": "Roles & Responsibility Matrix"
   },
   {
    "fieldname": "assignments",
@@ -162,60 +239,14 @@
    "options": "Compliance Assignment Item"
   },
   {
-   "fieldname": "schedule_tab",
-   "fieldtype": "Tab Break",
-   "label": "Schedule"
-  },
-  {
-   "fieldname": "schedule_section",
-   "fieldtype": "Section Break",
-   "label": "Schedule & Risk"
-  },
-  {
-   "default": "One-time",
-   "fieldname": "recurrence",
-   "fieldtype": "Select",
-   "label": "Recurrence",
-   "options": "One-time\nMonthly\nQuarterly\nHalf-Yearly\nYearly"
-  },
-  {
-   "fieldname": "start_date",
-   "fieldtype": "Date",
-   "label": "Start Date"
-  },
-  {
-   "fieldname": "cb_schedule_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "days_to_start_in_advance",
-   "fieldtype": "Int",
-   "label": "Days to Start in Advance"
-  },
-  {
-   "default": "Medium",
-   "fieldname": "risk_tier",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Risk Tier",
-   "options": "Low\nMedium\nHigh\nCritical"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_critical",
-   "fieldtype": "Check",
-   "label": "Is Critical"
-  },
-  {
    "fieldname": "evidence_tab",
    "fieldtype": "Tab Break",
-   "label": "Evidence"
+   "label": "Evidence Rules"
   },
   {
    "fieldname": "evidence_section",
    "fieldtype": "Section Break",
-   "label": "Evidence Rules"
+   "label": "Mandatory & Optional Evidence"
   },
   {
    "fieldname": "evidence_rules",
@@ -226,28 +257,15 @@
   {
    "fieldname": "alert_and_escalation_tab",
    "fieldtype": "Tab Break",
-   "label": "Alert &  Escalation"
-  },
-  {
-   "description": "Define alert triggers and recipients before, on, or after due date",
-   "fieldname": "alert_ladder_section",
-   "fieldtype": "Section Break",
-   "label": "Escalation Ladder"
-  },
-  {
-   "fieldname": "alert_days",
-   "fieldtype": "Table",
-   "label": "Alert Schedule",
-   "options": "Alert Schedule"
+   "label": "Alerts & Escalation"
   },
   {
    "fieldname": "alert_timing_section",
    "fieldtype": "Section Break",
-   "label": "Timing"
+   "label": "Timing & Window"
   },
   {
-   "default": "2",
-   "description": "Days after the due date before an unverified record is escalated as overdue",
+   "default": "0",
    "fieldname": "overdue_grace_days",
    "fieldtype": "Int",
    "label": "Overdue Grace Days"
@@ -257,123 +275,21 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "2",
-   "description": "Days a recipient has to acknowledge an alert before escalation",
+   "default": "3",
    "fieldname": "acknowledgement_window_days",
    "fieldtype": "Int",
-   "label": "Acknowledgement Window Days"
-  },
-  {
-   "fieldname": "request_tab",
-   "fieldtype": "Tab Break",
-   "label": "Request"
-  },
-  {
-   "fieldname": "html_filg",
-   "fieldtype": "HTML"
-  },
-  {
-   "fieldname": "subcategory",
-   "fieldtype": "Data",
-   "label": "Subcategory"
-  },
-  {
-   "fieldname": "applicability_reviewer",
-   "fieldtype": "Link",
-   "label": "Applicability Reviewer",
-   "options": "User"
-  },
-  {
-   "fieldname": "applicability_review_date",
-   "fieldtype": "Date",
-   "label": "Applicability Review Date"
-  },
-  {
-   "fieldname": "cb_applicability_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "location_state",
-   "fieldtype": "Data",
-   "label": "Location / State"
-  },
-  {
-   "fieldname": "applicable_service",
-   "fieldtype": "Data",
-   "label": "Applicable Service / Unit"
-  },
-  {
-   "description": "Certificate / licence expiry date at record level",
-   "fieldname": "validity_end",
-   "fieldtype": "Date",
-   "label": "Validity End Date"
-  },
-  {
-   "default": "0",
-   "description": "Notice period required before expiry / renewal",
-   "fieldname": "notice_period_days",
-   "fieldtype": "Int",
-   "label": "Notice Period (Days)"
-  },
-  {
-   "description": "Financial, regulatory or patient-safety consequence if missed",
-   "fieldname": "risk_consequence",
-   "fieldtype": "Small Text",
-   "label": "Risk / Consequence"
-  },
-  {
-   "fieldname": "department_head",
-   "fieldtype": "Link",
-   "options": "User",
-   "label": "Department Head",
-   "read_only": 1,
-   "fetch_from": "department.department_head",
-   "hidden": 1
-  },
-  {
-   "fieldname": "precreate_section",
-   "fieldtype": "Section Break",
-   "label": "Pre-create Requests"
-  },
-  {
-   "fieldname": "precreate_status",
-   "fieldtype": "Data",
-   "label": "Pre-create Status",
-   "read_only": 1,
-   "description": "Use the Pre-create Records Request button"
-  },
-  {
-   "fieldname": "precreate_period",
-   "fieldtype": "Data",
-   "label": "Pre-create Recurrence",
-   "read_only": 1
-  },
-  {
-   "fieldname": "cb_precreate_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "precreate_count",
-   "fieldtype": "Int",
-   "label": "Records Requested",
-   "read_only": 1
-  },
-  {
-   "fieldname": "precreate_requested_by",
-   "fieldtype": "Link",
-   "options": "User",
-   "label": "Requested By",
-   "read_only": 1
+   "label": "Acknowledgement Window (Days)"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
+ "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-18 15:45:12.091603",
+ "modified": "2026-11-19 22:36:14.218860",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -391,11 +307,11 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "search_fields": "compliance,category,department,project",
+ "search_fields": "compliance_name,category,department,project",
+ "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1,
- "title_field": "compliance",
- "show_title_field_in_link": 1
+ "title_field": "compliance_name",
+ "track_changes": 1
 }

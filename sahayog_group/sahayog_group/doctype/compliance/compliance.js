@@ -4,7 +4,7 @@
 frappe.ui.form.on("Compliance", {
 	refresh(frm) {
 		load_requests_table(frm);
-		setup_precreate(frm);
+		
 	},
 	department(frm) {
 		fill_department_head(frm);
@@ -37,69 +37,6 @@ function is_owner_user(frm) {
 	return (frm.doc.assignments || []).some(
 		(r) => ["Responsible Person", "Backup Owner"].includes(r.role) && r.user === frappe.session.user
 	);
-}
-
-function call_precreate(method, args, frm, after) {
-	frappe.call({
-		method: PRECREATE + method,
-		args: Object.assign({ compliance: frm.doc.name }, args),
-		freeze: true,
-		callback(r) {
-			if (r && r.message) {
-				frappe.show_alert({ message: r.message.message, indicator: "green" }, 2);
-			}
-			frm.reload_doc();
-			if (after) after(r);
-		},
-	});
-}
-
-function setup_precreate(frm) {
-	if (frm.is_new() || !frm.doc.is_active) return;
-	const master = is_master();
-	const owner = is_owner_user(frm);
-	if (!master && !owner) return;
-
-	frm.add_custom_button(__("Pre-create Records Request"), () => open_precreate_dialog(frm, master));
-
-	const status = frm.doc.precreate_status;
-	if (status === "Asked" && owner) {
-		frm.dashboard.set_headline_alert(
-			__("Do you want to pre-create records for this compliance? Click 'Pre-create Records Request'."), "blue"
-		);
-	}
-	if (status === "Requested" && master) {
-		frm.dashboard.set_headline_alert(
-			__("Pre-create request: {0} record(s) requested by {1}.", [frm.doc.precreate_count, frm.doc.precreate_requested_by]),
-			"orange"
-		);
-		frm.add_custom_button(__("Accept"), () => {
-			call_precreate("precreate_decide", { decision: "Accept" }, frm);
-		}, __("Pre-create Request"));
-		frm.add_custom_button(__("Reject"), () => {
-			call_precreate("precreate_decide", { decision: "Reject" }, frm);
-		}, __("Pre-create Request"));
-	}
-}
-
-function open_precreate_dialog(frm, master) {
-	if (!frm.doc.start_date) {
-		frappe.msgprint(__("Set the Start Date first."));
-		return;
-	}
-	const d = new frappe.ui.Dialog({
-		title: master ? __("Pre-create Records") : __("Pre-create Records Request"),
-		fields: [
-			{ fieldname: "recurrence", fieldtype: "Data", label: __("Recurrence"), default: frm.doc.recurrence, read_only: 1 },
-			{ fieldname: "count", fieldtype: "Int", label: __("How many records to create in advance?"), reqd: 1 },
-		],
-		primary_action_label: master ? __("Create Records") : __("Send Request"),
-		primary_action(values) {
-			d.hide();
-			call_precreate("precreate_send_request", { count: values.count }, frm);
-		},
-	});
-	d.show();
 }
 
 function fill_department_head(frm) {

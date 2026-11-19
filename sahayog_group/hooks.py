@@ -1,5 +1,5 @@
 app_name = "sahayog_group"
-app_title = "Sahayog Group"
+app_title = "Compliance"
 app_publisher = "Talib Sheikh"
 app_description = "Sahayog Group"
 app_email = "talibsheikh16@gmail.com"
@@ -8,18 +8,14 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
-
-# Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "sahayog_group",
-# 		"logo": "/assets/sahayog_group/logo.png",
-# 		"title": "Sahayog Group",
-# 		"route": "/sahayog_group",
-# 		"has_permission": "sahayog_group.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "sahayog_group",
+		"logo": "/assets/sahayog_group/icons/organization.svg",
+		"title": "Compliance",
+		"route": "/desk/compliance-management",
+	}
+]
 
 # Includes in <head>
 # ------------------

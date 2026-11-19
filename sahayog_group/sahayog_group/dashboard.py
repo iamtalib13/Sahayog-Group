@@ -92,9 +92,9 @@ class Ctx:
         if names:
             for c in frappe.get_all(
                 "Compliance", filters={"name": ["in", list(names)]},
-                fields=["name", "compliance", "days_to_start_in_advance"], limit_page_length=100000,
+                fields=["name", "compliance_name", "days_to_start_in_advance"], limit_page_length=100000,
             ):
-                self.titles[c.name] = c.compliance
+                self.titles[c.name] = c.compliance_name
                 self.compliance_days[c.name] = cint(c.days_to_start_in_advance)
 
         self.rows = []
@@ -136,7 +136,7 @@ class Ctx:
             if r.name == name:
                 return r.title
         comp = frappe.db.get_value(REQ, name, "compliance")
-        return (frappe.db.get_value("Compliance", comp, "compliance") if comp else None) or name
+        return (frappe.db.get_value("Compliance", comp, "compliance_name") if comp else None) or name
 
     def open(self):
         return [r for r in self.rows if r.is_open]
@@ -509,23 +509,29 @@ def _v_project_head(c):
 def _v_master_admin(c):
     masters = frappe.get_all(
         "Compliance",
-        fields=["name", "compliance", "department", "project", "company", "responsible_person", "reviewer",
+        fields=["name", "compliance_name", "department", "project", "compliance_company",
                 "department_head", "recurrence", "start_date", "is_active"],
         limit_page_length=100000,
     )
     rule_dt = frappe.get_meta("Compliance").get_field("evidence_rules").options
     with_rules = {x.parent for x in frappe.get_all(rule_dt, filters={"parenttype": "Compliance"},
                                                    fields=["parent"], limit_page_length=100000)}
+    assign_dt = frappe.get_meta("Compliance").get_field("assignments").options
+    assignments = frappe.get_all(assign_dt, filters={"parenttype": "Compliance"},
+                                 fields=["parent", "role", "user"], limit_page_length=100000)
+    has_resp = {a.parent for a in assignments if a.role in ("Responsible Person", "Responsible", "Owner") and a.user}
+    has_rev = {a.parent for a in assignments if a.role in ("Reviewer", "Checker") and a.user}
+
     missing = []
     for m in masters:
         gaps = [lbl for lbl, ok in (
-            ("Responsible", m.responsible_person), ("Reviewer", m.reviewer), ("Dept Head", m.department_head),
+            ("Responsible", m.name in has_resp), ("Reviewer", m.name in has_rev), ("Dept Head", m.department_head),
             ("Recurrence", m.recurrence), ("Start Date", m.start_date), ("Evidence rule", m.name in with_rules)) if not ok]
         if gaps:
-            missing.append([_link(m.compliance or m.name, m.name, "Compliance"), ", ".join(gaps)])
+            missing.append([_link(m.compliance_name or m.name, m.name, "Compliance"), ", ".join(gaps)])
     seen, dups = {}, []
     for m in masters:
-        key = ((m.compliance or "").strip().lower(), m.department, m.project, m.company)
+        key = ((m.compliance_name or "").strip().lower(), m.department, m.project, m.compliance_company)
         seen.setdefault(key, []).append(m.name)
     for k, v in seen.items():
         if len(v) > 1:

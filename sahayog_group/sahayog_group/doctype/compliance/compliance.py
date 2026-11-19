@@ -6,7 +6,7 @@ from frappe.utils import add_days, add_months, getdate, nowdate
 
 class Compliance(Document):
     def validate(self):
-        self.compliance = (self.compliance or "").strip()
+        self.compliance_name = (self.compliance_name or getattr(self, "compliance", None) or "").strip()
         self.fill_department_head()
         self.validate_assignments()
         self.validate_duplicate()
@@ -45,7 +45,7 @@ class Compliance(Document):
 
     def validate_duplicate(self):
         """Same Compliance Name is allowed for a different Department / Project / Company, not for the same combination."""
-        filters = {"compliance": self.compliance, "name": ["!=", self.name or ""]}
+        filters = {"compliance_name": self.compliance_name, "name": ["!=", self.name or ""]}
         for f in ("department", "project", "company"):
             value = self.get(f)
             filters[f] = value if value else ["is", "not set"]
@@ -53,7 +53,7 @@ class Compliance(Document):
         if dup:
             frappe.throw(
                 _("Compliance {0} already exists for this Department, Project and Company ({1}).").format(
-                    frappe.bold(self.compliance), dup
+                    frappe.bold(self.compliance_name), dup
                 ),
                 title=_("Duplicate Compliance"),
             )
@@ -148,7 +148,7 @@ def create_request(compliance_doc, start_date, due_date, previous_record=None):
         "category": compliance_doc.category,
         "project": compliance_doc.project,
         "department": compliance_doc.department,
-        "company": compliance_doc.company,
+        "company": compliance_doc.compliance_company,
         "risk_tier": compliance_doc.risk_tier,
         "responsible_person": get_role_user("Responsible Person"),
         "backup_owner": get_role_user("Backup Owner"),
@@ -191,7 +191,7 @@ def _notify(users, subject, message, doc):
     from frappe.utils import escape_html, get_url_to_form
 
     link = get_url_to_form("Compliance", doc.name)
-    label = "{0} ({1})".format(doc.compliance, doc.name)
+    label = "{0} ({1})".format(doc.compliance_name, doc.name)
     body = "<p>{0}</p><p><a href='{1}'>{2}</a></p>".format(escape_html(message), link, escape_html(label))
     for user in dict.fromkeys(u for u in users if u):
         try:
@@ -230,245 +230,3 @@ def _responsible(doc):
     return doc.get_assignment_user("Responsible Person")
 
 
-def _set_precreate(name, **values):
-    frappe.db.set_value("Compliance", name, values, update_modified=False)
-
-
-def _create_cycles(doc, count):
-    """Create `count` more Requests after the ones that already exist. Nothing is duplicated."""
-    recurring = bool(doc.recurrence and doc.recurrence != "One-time")
-    existing = frappe.get_all(
-        "Compliance Request",
-        filters={"compliance": doc.name, "status": ["!=", "Superseded / Inactive"]},
-        fields=["name", "due_date"],
-        order_by="due_date asc",
-    )
-    existing = [r for r in existing if r.due_date]
-    dues = {getdate(r.due_date): r.name for r in existing}
-    if existing:
-        if not recurring:
-            return 0
-        start, previous = getdate(existing[-1].due_date), existing[-1].name
-    else:
-        start, previous = getdate(doc.start_date), None
-
-    created = 0
-    try:
-        for i in range(count):
-            due = _calc_due_date(start, doc.recurrence)
-            if due in dues:
-                previous = dues[due]
-            else:
-                req = create_request(doc, start, due, previous_record=previous)
-                dues[due] = req.name
-                previous = req.name
-                created += 1
-            if not recurring:
-                break
-            start = due
-    except Exception:
-        frappe.db.rollback()
-        raise
-    return created
-
-
-def _accept(doc, count, requested_by):
-    created = _create_cycles(doc, count)
-    _set_precreate(doc.name, precreate_status="Created", precreate_count=count)
-    _notify(
-        [requested_by, _responsible(doc)],
-        "Records created for {0}".format(doc.compliance),
-        "{0} record(s) have been created in advance for this compliance.".format(created),
-        doc,
-    )
-    return {"state": "Created", "created": created, "message": _("{0} record(s) created.").format(created)}
-
-
-@frappe.whitelist()
-def precreate_ask(compliance, answer):
-    """Asked from the Compliance Master / System Manager when a Compliance is saved for the first time."""
-    doc = frappe.get_doc("Compliance", compliance)
-    doc.check_permission("read")
-    if not _is_master():
-        frappe.throw(_("Only a Compliance Master or System Manager can answer this."), title=_("Pre-create"))
-
-    if str(answer).strip().lower() != "yes":
-        _set_precreate(compliance, precreate_status="Not Required")
-        return {"state": "Not Required", "message": _("Records will be created automatically before their due date.")}
-
-    responsible = _responsible(doc)
-    if not responsible:
-        frappe.throw(_("Add a Responsible Person in Assignments first."), title=_("Pre-create"))
-    _set_precreate(compliance, precreate_status="Asked")
-    _notify(
-        [responsible],
-        "Pre-create records for {0}?".format(doc.compliance),
-        "Do you want to pre-create records in advance for this compliance? "
-        "Open it and click 'Pre-create Records Request' to choose how many records you need.",
-        doc,
-    )
-    return {"state": "Asked", "message": _("The Responsible Person has been notified.")}
-
-
-@frappe.whitelist()
-def precreate_send_request(compliance, count):
-    """Responsible Person asks for N records. A Master / System Manager using the button creates them directly."""
-    doc = frappe.get_doc("Compliance", compliance)
-    doc.check_permission("read")
-    user = frappe.session.user
-    master = _is_master()
-    if not master and user not in (_responsible(doc), doc.get_assignment_user("Backup Owner")):
-        frappe.throw(_("Only the Responsible Person or a Compliance Master can do this."), title=_("Pre-create"))
-    if not doc.is_active:
-        frappe.throw(_("This Compliance is not active."), title=_("Pre-create"))
-    if not doc.start_date:
-        frappe.throw(_("Set the Start Date first."), title=_("Pre-create"))
-    count = int(count or 0)
-    if count < 1 or count > PRECREATE_MAX:
-        frappe.throw(_("Enter a count between 1 and {0}.").format(PRECREATE_MAX), title=_("Pre-create"))
-
-    _set_precreate(
-        compliance, precreate_status="Requested", precreate_count=count,
-        precreate_period=doc.recurrence, precreate_requested_by=user,
-    )
-    if master:
-        return _accept(doc, count, user)
-
-    _notify(
-        _approvers(doc),
-        "Pre-create request: {0}".format(doc.compliance),
-        "{0} has requested {1} record(s) to be created in advance for this compliance. "
-        "Open it to accept or reject the request.".format(frappe.utils.get_fullname(user), count),
-        doc,
-    )
-    return {"state": "Requested", "message": _("Request sent")}
-
-
-@frappe.whitelist()
-def precreate_decide(compliance, decision):
-    """Compliance Master / System Manager accepts or rejects the request."""
-    doc = frappe.get_doc("Compliance", compliance)
-    doc.check_permission("read")
-    if not _is_master():
-        frappe.throw(_("Only a Compliance Master or System Manager can accept or reject."), title=_("Pre-create"))
-    if doc.precreate_status != "Requested":
-        frappe.throw(_("There is no pending pre-create request."), title=_("Pre-create"))
-
-    requested_by = doc.precreate_requested_by
-    if str(decision).strip().lower() == "accept":
-        return _accept(doc, int(doc.precreate_count or 0), requested_by)
-
-    _set_precreate(compliance, precreate_status="Rejected")
-    _notify(
-        [requested_by, _responsible(doc)],
-        "Pre-create request rejected: {0}".format(doc.compliance),
-        "Your request to pre-create records for this compliance has been rejected.",
-        doc,
-    )
-    return {"state": "Rejected", "message": _("Request rejected.")}
-
-
-@frappe.whitelist()
-def get_requests_html(compliance_name=None):
-    if not compliance_name or compliance_name in ["None", "undefined", "null"] or not frappe.db.exists("Compliance", compliance_name):
-        return "<p class='text-muted' style='padding: 15px;'>Please save the Compliance first to view requests.</p>"
-
-    doc = frappe.get_doc("Compliance", compliance_name)
-    requests = frappe.get_all(
-        "Compliance Request",
-        filters={"compliance": compliance_name},
-        fields=[
-            "name",
-            "initiation_date",
-            "due_date",
-            "responsible_person",
-            "closed_on",
-            "status",
-        ],
-        order_by="due_date asc, creation asc",
-    )
-
-    def get_badge(status):
-        st = status or "Not Started"
-        color_map = {
-            "Not Started": "gray",
-            "Draft": "gray",
-            "Upcoming": "blue",
-            "Action Required": "orange",
-            "In Progress": "cyan",
-            "Application Submitted": "yellow",
-            "Awaiting Authority / Third Party": "yellow",
-            "Blocked / At Risk": "purple",
-            "Completion Submitted": "cyan",
-            "Closed / Completed": "green",
-            "Overdue": "red",
-            "Exception Approved": "blue",
-            "Superseded / Inactive": "gray",
-        }
-        color = color_map.get(st, "blue")
-        return f'<span class="indicator-pill {color}">{st}</span>'
-
-    rows_html = []
-
-    if requests:
-        for r in requests:
-            start_src = r.initiation_date
-            if not start_src and r.due_date:
-                m = {"monthly": 1, "quarterly": 3, "half-yearly": 6, "yearly": 12}.get((doc.recurrence or "").strip().lower())
-                start_src = add_months(getdate(r.due_date), -m) if m else r.due_date
-            start_d = frappe.format(start_src, {"fieldtype": "Date"}) if start_src else "-"
-            due_d = frappe.format(r.due_date, {"fieldtype": "Date"}) if r.due_date else "-"
-            closed_d = frappe.format(r.closed_on, {"fieldtype": "Date"}) if r.closed_on else "-"
-            resp_user = doc.get_assignment_user("Responsible Person") if hasattr(doc, "get_assignment_user") else None
-            user_val = r.responsible_person or resp_user or "-"
-            req_link = f'<a href="/app/compliance-request/{r.name}" style="font-weight: 600;">{r.name}</a>'
-            badge = get_badge(r.status)
-
-            rows_html.append(f"""
-                <tr>
-                    <td>{req_link}</td>
-                    <td>{start_d}</td>
-                    <td>{due_d}</td>
-                    <td>{user_val}</td>
-                    <td>{closed_d}</td>
-                    <td>{badge}</td>
-                </tr>
-            """)
-
-    if not requests:
-        c1_start = getdate(doc.start_date) if doc.start_date else None
-        c1_due = _calc_due_date(c1_start, doc.recurrence) if c1_start else None
-        c1_start_str = frappe.format(c1_start, {"fieldtype": "Date"}) if c1_start else "-"
-        c1_due_str = frappe.format(c1_due, {"fieldtype": "Date"}) if c1_due else "-"
-        resp_user = doc.get_assignment_user("Responsible Person") if hasattr(doc, "get_assignment_user") else "-"
-        rows_html.append(f"""
-            <tr>
-                <td><span class="text-muted">Not Generated Yet</span></td>
-                <td>{c1_start_str}</td>
-                <td>{c1_due_str}</td>
-                <td>{resp_user or "-"}</td>
-                <td>-</td>
-                <td>{get_badge("Not Started")}</td>
-            </tr>
-        """)
-
-    table_body = "\n".join(rows_html)
-    return f"""
-    <div style="padding: 10px 0; overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch;">
-        <table class="table table-bordered table-hover" style="width: 100%; min-width: 650px; margin-bottom: 0; white-space: nowrap;">
-            <thead style="background-color: var(--table-header-bg, #f4f5f7);">
-                <tr>
-                    <th style="width: 22%;">Request ID</th>
-                    <th style="width: 16%;">Start Date</th>
-                    <th style="width: 16%;">Due Date</th>
-                    <th style="width: 20%;">Assigned To</th>
-                    <th style="width: 13%;">Closed Date</th>
-                    <th style="width: 13%;">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {table_body}
-            </tbody>
-        </table>
-    </div>
-    """
