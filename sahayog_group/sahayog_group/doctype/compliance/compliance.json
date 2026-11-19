@@ -48,7 +48,10 @@
   "cb_alert_timing_1",
   "acknowledgement_window_days",
   "alert_ladder_section",
-  "alert_days"
+  "alert_days",
+  "request_tab",
+  "requests_section",
+  "html_filg"
  ],
  "fields": [
   {
@@ -297,6 +300,21 @@
    "label": "Alert Schedule",
    "options": "Alert Schedule",
    "description": "Configured notification timeline and escalation hierarchy based on days relative to due date."
+  },
+  {
+   "fieldname": "request_tab",
+   "fieldtype": "Tab Break",
+   "label": "Requests"
+  },
+  {
+   "fieldname": "requests_section",
+   "fieldtype": "Section Break",
+   "label": "Execution History & Requests"
+  },
+  {
+   "fieldname": "html_filg",
+   "fieldtype": "HTML",
+   "label": "Linked Requests"
   }
  ],
  "grid_page_length": 50,

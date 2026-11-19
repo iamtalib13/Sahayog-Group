@@ -229,4 +229,85 @@ def _approvers(doc):
 def _responsible(doc):
     return doc.get_assignment_user("Responsible Person")
 
+@frappe.whitelist()
+def get_requests_html(compliance_name=None):
+    if not compliance_name or compliance_name in ["None", "undefined", "null"] or not frappe.db.exists("Compliance", compliance_name):
+        return "<p class='text-muted' style='padding: 15px;'>Please save the Compliance first to view requests.</p>"
 
+    doc = frappe.get_doc("Compliance", compliance_name)
+    requests = frappe.get_all(
+        "Compliance Request",
+        filters={"compliance": compliance_name},
+        fields=[
+            "name",
+            "initiation_date",
+            "due_date",
+            "responsible_person",
+            "closed_on",
+            "status",
+        ],
+        order_by="due_date asc, creation asc",
+    )
+
+    def get_badge(status):
+        st = status or "Not Started"
+        color_map = {
+            "Not Started": "gray",
+            "Draft": "gray",
+            "Upcoming": "blue",
+            "Action Required": "orange",
+            "In Progress": "cyan",
+            "Application Submitted": "yellow",
+            "Awaiting Authority / Third Party": "yellow",
+            "Blocked / At Risk": "purple",
+            "Completion Submitted": "cyan",
+            "Closed / Completed": "green",
+            "Overdue": "red",
+            "Exception Approved": "blue",
+            "Superseded / Inactive": "gray",
+        }
+        color = color_map.get(st, "blue")
+        return f"<span class='indicator-pill {color}'>{st}</span>"
+
+    rows_html = []
+    resp_user = doc.get_assignment_user("Responsible Person") or "-"
+
+    if requests:
+        for r in requests:
+            start_src = r.initiation_date or doc.start_date
+            start_d = frappe.format(start_src, {"fieldtype": "Date"}) if start_src else "-"
+            due_d = frappe.format(r.due_date, {"fieldtype": "Date"}) if r.due_date else "-"
+            closed_d = frappe.format(r.closed_on, {"fieldtype": "Date"}) if r.closed_on else "-"
+            user_val = r.responsible_person or resp_user
+            req_link = f"<a href='/desk/compliance-request/{r.name}' style='font-weight: 600;'>{r.name}</a>"
+            badge = get_badge(r.status)
+
+            rows_html.append(f"<tr><td>{req_link}</td><td>{start_d}</td><td>{due_d}</td><td>{user_val}</td><td>{closed_d}</td><td>{badge}</td></tr>")
+    else:
+        c1_start = getdate(doc.start_date) if doc.start_date else None
+        c1_due = _calc_due_date(c1_start, doc.recurrence) if c1_start else None
+        c1_start_str = frappe.format(c1_start, {"fieldtype": "Date"}) if c1_start else "-"
+        c1_due_str = frappe.format(c1_due, {"fieldtype": "Date"}) if c1_due else "-"
+        not_gen = "<span class='text-muted'>Not Generated Yet</span>"
+        rows_html.append(f"<tr><td>{not_gen}</td><td>{c1_start_str}</td><td>{c1_due_str}</td><td>{resp_user}</td><td>-</td><td>{get_badge('Not Started')}</td></tr>")
+
+    table_body = "\n".join(rows_html)
+    return (
+        "<div style='padding: 10px 0; overflow-x: auto; width: 100%;'>"
+        "<table class='table table-bordered table-hover' style='width: 100%; min-width: 650px; margin-bottom: 0;'>"
+        "<thead style='background-color: var(--table-header-bg, #f4f5f7);'>"
+        "<tr>"
+        "<th style='width: 22%;'>Request ID</th>"
+        "<th style='width: 16%;'>Start Date</th>"
+        "<th style='width: 16%;'>Due Date</th>"
+        "<th style='width: 20%;'>Assigned To</th>"
+        "<th style='width: 13%;'>Closed Date</th>"
+        "<th style='width: 13%;'>Status</th>"
+        "</tr>"
+        "</thead>"
+        "<tbody>"
+        + table_body +
+        "</tbody>"
+        "</table>"
+        "</div>"
+    )
