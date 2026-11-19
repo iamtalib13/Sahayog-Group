@@ -1,0 +1,37 @@
+{
+ "charts": [],
+ "content": "[]",
+ "creation": "2026-10-23 13:01:26.980891",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Compliance Management",
+ "link_type": "DocType",
+ "links": [],
+ "modified": "2026-11-19 16:19:37.490757",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Compliance Management",
+ "number_cards": [],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 0.0,
+ "shortcuts": [
+  {
+   "doc_view": "List",
+   "label": "Compliance",
+   "link_to": "Compliance",
+   "type": "DocType"
+  }
+ ],
+ "standard": 1,
+ "title": "Compliance Management",
+ "type": "Workspace"
+}
