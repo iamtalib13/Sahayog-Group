@@ -4,7 +4,9 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_days, add_months, getdate, nowdate, now_datetime
+from frappe.utils import (
+    add_days, add_months, add_to_date, escape_html, get_url_to_form, getdate, nowdate, now_datetime,
+)
 
 
 MASTER_DOCTYPE = "Compliance"
@@ -26,7 +28,7 @@ class ComplianceRequest(Document):
     def validate(self):
         self.set_from_rule()
         self.set_original_due_date()
-        self.set_started_on()
+        self.set_start_date()
         self.populate_evidence_rows()
         self.stamp_evidence_uploader()
         self.handle_resubmission()
@@ -49,6 +51,12 @@ class ComplianceRequest(Document):
         frappe.logger("compliance_closure").warning(
             f"{self.name or 'new'} | user={frappe.session.user} | status={self.status} | {message}"
         )
+        from sahayog_group.sahayog_group.audit import log_event
+
+        log_event(
+            "Closure Blocked" if self.status in CLOSURE_STATUSES else "Action Blocked",
+            "Compliance Request", self.name, request=self.name, details=message, new=self.status, commit=True,
+        )
         frappe.throw(message, title=_("Action Blocked"))
 
     def requires_maker_checker(self):
@@ -61,8 +69,7 @@ class ComplianceRequest(Document):
             return
         rule = frappe.db.get_value(
             RULE_DOCTYPE, self.compliance,
-            ["category", "department", "company", "project", "risk_tier",
-             "responsible_person", "backup_owner", "reviewer", "department_head"],
+            ["category", "department", "company", "project", "risk_tier"],
             as_dict=True,
         )
         if not rule:
@@ -70,23 +77,42 @@ class ComplianceRequest(Document):
         for f in ("category", "department", "company", "project", "risk_tier"):
             if rule.get(f):
                 self.set(f, rule.get(f))
-        for f in ("responsible_person", "backup_owner", "reviewer", "department_head"):
-            if not self.get(f):
-                self.set(f, rule.get(f))
+
+        # Fetch role assignments from Compliance Assignment Item
+        assignments = frappe.get_all(
+            "Compliance Assignment Item",
+            filters={"parent": self.compliance, "parenttype": RULE_DOCTYPE},
+            fields=["role", "user"],
+        )
+        role_map = {
+            "Responsible Person": "responsible_person",
+            "Backup Owner": "backup_owner",
+            "Reviewer": "reviewer",
+            "Department Head": "department_head",
+            "Unit Head": "unit_head",
+            "Central Compliance Owner": "central_compliance_owner",
+        }
+        for row in assignments:
+            field = role_map.get(row.role)
+            if field and not self.get(field):
+                self.set(field, row.user)
 
     # ---------- dates ----------
     def set_original_due_date(self):
         if self.due_date and not self.original_due_date:
             self.original_due_date = self.due_date
 
-    def set_started_on(self):
+    def set_start_date(self):
         """Stamp the day work actually began (first time the status moves past not-started)."""
         started = (
             "In Progress", "Application Submitted", "Awaiting Authority / Third Party",
             "Blocked / At Risk", "Completion Submitted", "Closed / Completed",
         )
-        if self.status in started and not self.started_on:
-            self.started_on = nowdate()
+        if self.status in started:
+            if not self.start_date:
+                self.start_date = nowdate()
+            if not self.initiation_date:
+                self.initiation_date = nowdate()
 
     # ---------- evidence rows ----------
     def populate_evidence_rows(self):
@@ -174,7 +200,7 @@ class ComplianceRequest(Document):
     # ---------- status rules ----------
     def validate_status_requirements(self):
         has_file = any(row.file for row in self.evidence_items)
-        stop = lambda msg: frappe.throw(msg, title=_("Action Blocked"))
+        stop = lambda msg: self.block(msg)
 
         if self.status == "Application Submitted":
             if not self.application_reference_no:
@@ -196,9 +222,6 @@ class ComplianceRequest(Document):
 
     # ---------- date checks ----------
     def validate_dates(self):
-        if self.initiation_date and self.due_date and getdate(self.initiation_date) > getdate(self.due_date):
-            frappe.throw(_("Initiation Date cannot be after the Due Date."))
-
         today = getdate(nowdate())
         for row in self.evidence_items:
             if row.document_date and getdate(row.document_date) > today:
@@ -330,6 +353,7 @@ def run_action(name, action, reason=None, blocker=None, next_action=None):
         doc.rejection_reason = reason
     elif action == "Reopen":
         doc.reviewer_decision = ""
+        doc.restart_work_date = nowdate()
 
     doc.status = rule["to"]
     doc.flags.ignore_permissions = True
@@ -370,6 +394,9 @@ def reassign(name, new_responsible, reason, new_backup=None):
             old_owner, doc.responsible_person, old_backup or "-", doc.backup_owner or "-", escape_html(_clean(reason))
         ),
     )
+    _notify_reassignment(
+        doc.name, old_owner, doc.responsible_person, doc.backup_owner, _clean(reason), frappe.session.user,
+    )
     return doc.responsible_person
 
 
@@ -405,224 +432,366 @@ OPEN_STATUSES = [
 def check_and_set_overdue():
     """
     Daily job: flip status to 'Overdue' for any open record whose due_date has passed
-    the configured grace period. Original due date is preserved. (BRD FR-09, Sec-9)
+    the grace period set in the Settings tab of its Compliance. Original due date is preserved. (BRD FR-09, Sec-9)
     """
-    settings = frappe.get_single("Compliance Settings")
-    grace = int(getattr(settings, "overdue_grace_days", 0) or 0)
-    cutoff = add_days(getdate(nowdate()), -grace)
-
-    overdue_records = frappe.get_all(
+    today = getdate(nowdate())
+    candidates = frappe.get_all(
         REQUEST_DOCTYPE,
-        filters={
-            "status": ["in", OPEN_STATUSES],
-            "due_date": ["<", cutoff],
-            "is_active": 1,
-        },
-        pluck="name",
+        filters={"status": ["in", OPEN_STATUSES], "due_date": ["<", today], "is_active": 1},
+        fields=["name", "compliance", "due_date"],
     )
+    done = []
+    for r in candidates:
+        cfg = _alert_config(r.compliance)
+        grace = cfg["grace"] if cfg else 0
+        cutoff = add_days(today, -grace)
+        if getdate(r.due_date) < cutoff:
+            frappe.db.set_value(REQUEST_DOCTYPE, r.name, "status", "Overdue", update_modified=False)
+            _escalate_overdue(r.name)
+            frappe.logger("compliance_overdue").info(f"{r.name} → Overdue (due_date < {cutoff})")
+            done.append(r.name)
 
-    for name in overdue_records:
-        frappe.db.set_value(REQUEST_DOCTYPE, name, "status", "Overdue", update_modified=False)
-        frappe.logger("compliance_overdue").info(f"{name} → Overdue (due_date < {cutoff})")
-
-    if overdue_records:
+    if done:
         frappe.db.commit()
 
-    return len(overdue_records)
+    return len(done)
 
 
-# ======================= Alert / Email scheduler (BRD FR-08, Sec-11) =======================
+# ======================= Alerts, acknowledgement and escalation (BRD FR-08, FR-09, Sec-11) =======================
 
-def send_compliance_alerts():
-    """
-    Daily job: send email/in-app notifications for upcoming due dates per risk-tier alert
-    day configuration in Compliance Settings. (BRD FR-08, FR-09, Sec-11)
-    """
-    settings = frappe.get_single("Compliance Settings")
-    today = getdate(nowdate())
-
-    tier_config = {
-        "Critical": {
-            "alert_days_field": "critical_alert_days",
-            "notify_responsible": getattr(settings, "critical_notify_responsible", 1),
-            "notify_dept_head": getattr(settings, "critical_notify_dept_head", 1),
-            "notify_unit_head": getattr(settings, "critical_notify_unit_head", 1),
-            "notify_reviewer": getattr(settings, "critical_notify_reviewer", 0),
-            "notify_ceo": getattr(settings, "critical_notify_ceo", 1),
-            "notify_role": getattr(settings, "critical_notify_role", None),
-            "urgent_threshold": 7,
-        },
-        "High": {
-            "alert_days_field": "high_alert_days",
-            "notify_responsible": getattr(settings, "high_notify_responsible", 1),
-            "notify_dept_head": getattr(settings, "high_notify_dept_head", 1),
-            "notify_unit_head": getattr(settings, "high_notify_unit_head", 1),
-            "notify_reviewer": getattr(settings, "high_notify_reviewer", 0),
-            "notify_ceo": getattr(settings, "high_notify_ceo", 0),
-            "notify_role": getattr(settings, "high_notify_role", None),
-            "urgent_threshold": 7,
-        },
-        "Medium": {
-            "alert_days_field": "medium_alert_days",
-            "notify_responsible": getattr(settings, "medium_notify_responsible", 1),
-            "notify_dept_head": getattr(settings, "medium_notify_dept_head", 1),
-            "notify_unit_head": getattr(settings, "medium_notify_unit_head", 0),
-            "notify_reviewer": getattr(settings, "medium_notify_reviewer", 0),
-            "notify_ceo": getattr(settings, "medium_notify_ceo", 0),
-            "notify_role": getattr(settings, "medium_notify_role", None),
-            "urgent_threshold": 7,
-        },
-        "Low": {
-            "alert_days_field": "low_alert_days",
-            "notify_responsible": getattr(settings, "low_notify_responsible", 1),
-            "notify_dept_head": getattr(settings, "low_notify_dept_head", 1),
-            "notify_unit_head": getattr(settings, "low_notify_unit_head", 0),
-            "notify_reviewer": getattr(settings, "low_notify_reviewer", 0),
-            "notify_ceo": getattr(settings, "low_notify_ceo", 0),
-            "notify_role": getattr(settings, "low_notify_role", None),
-            "urgent_threshold": 7,
-        },
-    }
-
-    alert_count = 0
-
-    for tier, cfg in tier_config.items():
-        # Get configured alert days for this tier
-        alert_days_rows = getattr(settings, cfg["alert_days_field"], []) or []
-        alert_day_values = []
-        for row in alert_days_rows:
-            days_val = frappe.db.get_value("Alert Day", row.alert_day, "days")
-            if days_val is not None:
-                alert_day_values.append(int(days_val))
-
-        if not alert_day_values:
-            continue
-
-        for days_before in alert_day_values:
-            target_date = add_days(today, days_before)
-            is_urgent = days_before <= cfg["urgent_threshold"]
-
-            records = frappe.get_all(
-                REQUEST_DOCTYPE,
-                filters={
-                    "risk_tier": tier,
-                    "due_date": target_date,
-                    "status": ["in", OPEN_STATUSES],
-                    "is_active": 1,
-                },
-                fields=[
-                    "name", "compliance", "responsible_person", "backup_owner",
-                    "reviewer", "department_head", "unit_head", "due_date",
-                    "risk_tier", "status",
-                ],
-            )
-
-            for rec in records:
-                recipients = _build_recipients(rec, cfg, settings)
-                if recipients:
-                    _send_alert_email(rec, recipients, days_before, is_urgent)
-                    alert_count += 1
-
-    return alert_count
-
-
-def _build_recipients(rec, cfg, settings):
-    """Build a deduplicated list of email recipients for an alert."""
-    recipients = set()
-
-    if cfg["notify_responsible"] and rec.get("responsible_person"):
-        email = frappe.db.get_value("User", rec.responsible_person, "email")
-        if email:
-            recipients.add(email)
-
-    if cfg["notify_dept_head"] and rec.get("department_head"):
-        email = frappe.db.get_value("User", rec.department_head, "email")
-        if email:
-            recipients.add(email)
-
-    if cfg["notify_unit_head"] and rec.get("unit_head"):
-        email = frappe.db.get_value("User", rec.unit_head, "email")
-        if email:
-            recipients.add(email)
-
-    if cfg["notify_reviewer"] and rec.get("reviewer"):
-        email = frappe.db.get_value("User", rec.reviewer, "email")
-        if email:
-            recipients.add(email)
-
-    if cfg["notify_ceo"]:
-        # Notify all users with 'CEO' role (or use a fixed email from settings if added later)
-        ceo_users = frappe.get_all(
-            "Has Role",
-            filters={"role": "CEO", "parenttype": "User"},
-            pluck="parent",
-        )
-        for u in ceo_users:
-            email = frappe.db.get_value("User", u, "email")
-            if email:
-                recipients.add(email)
-
-    if cfg.get("notify_role"):
-        role_users = frappe.get_all(
-            "Has Role",
-            filters={"role": cfg["notify_role"], "parenttype": "User"},
-            pluck="parent",
-        )
-        for u in role_users:
-            email = frappe.db.get_value("User", u, "email")
-            if email:
-                recipients.add(email)
-
-    return list(recipients)
+ALERT_LOG = "Alert Log"
+CEO_ROLE = "Compliance Executive"
+TIERS = ("Critical", "High", "Medium", "Low")
+URGENT_DAYS = 7
+REQUEST_FIELDS = [
+    "name", "compliance", "risk_tier", "status", "due_date", "responsible_person", "backup_owner",
+    "reviewer", "department_head", "unit_head", "central_compliance_owner",
+]
 
 
 def _compliance_title(rec):
     return frappe.db.get_value("Compliance", rec.get("compliance"), "compliance") or rec.name
 
 
-def _send_alert_email(rec, recipients, days_before, is_urgent):
-    """Send a single alert email and log the delivery attempt. (BRD FR-08, Sec-11)"""
-    subject_prefix = "⚠️ URGENT — " if is_urgent else ""
-    subject = _(
-        "{0}Compliance Alert: {1} due in {2} day(s) [{3}]"
-    ).format(subject_prefix, _compliance_title(rec), days_before, rec.risk_tier)
+CHAIRMAN_OFFICE_ROLE = "Compliance Monitor"
 
-    record_url = frappe.utils.get_url(f"/app/compliance-request/{rec.name}")
-    message = _(
-        """
-        <p>This is a reminder that the following compliance obligation is due in <strong>{days}</strong> day(s).</p>
-        <table style="border-collapse:collapse; width:100%;">
-          <tr><td style="padding:4px 8px;"><strong>Record</strong></td><td><a href="{url}">{name}</a></td></tr>
-          <tr><td style="padding:4px 8px;"><strong>Compliance</strong></td><td>{compliance_name}</td></tr>
-          <tr><td style="padding:4px 8px;"><strong>Due Date</strong></td><td>{due_date}</td></tr>
-          <tr><td style="padding:4px 8px;"><strong>Status</strong></td><td>{status}</td></tr>
-          <tr><td style="padding:4px 8px;"><strong>Risk Tier</strong></td><td>{risk_tier}</td></tr>
+
+def _alert_config(compliance):
+    """Alert settings of one Compliance (its Settings tab Escalation Ladder)."""
+    if not compliance or not frappe.db.exists("Compliance", compliance):
+        return None
+    c = frappe.get_cached_doc("Compliance", compliance)
+    ladder = []
+    for r in (c.get("alert_days") or []):
+        offset = (r.offset_type or "Before Due Date").strip()
+        days = int(r.days or 0)
+        if offset == "On Due Date":
+            days = 0
+        ladder.append({
+            "offset_type": offset,
+            "days": days,
+            "responsible": bool(r.get("notify_responsible")),
+            "dept_head": bool(r.get("notify_dept_head")),
+            "unit_head": bool(r.get("notify_unit_head")),
+            "reviewer": bool(r.get("notify_reviewer")),
+            "central_owner": bool(r.get("notify_central_owner")),
+            "ceo": bool(r.get("notify_ceo")),
+            "chairmans_office": bool(r.get("notify_chairmans_office")),
+            "urgent": bool(r.get("is_urgent")),
+        })
+    return {
+        "ladder": ladder,
+        "grace": int(c.get("overdue_grace_days") or 0),
+        "window": int(c.get("acknowledgement_window_days") or 2),
+    }
+
+
+def _users_with_role(role):
+    return frappe.get_all("Has Role", filters={"role": role, "parenttype": "User"}, pluck="parent")
+
+
+def _clean_users(users):
+    """Remove blanks, duplicates, disabled users and system users."""
+    seen, result = set(), []
+    for u in users:
+        if not u or u in seen or u in ("Administrator", "Guest"):
+            continue
+        if frappe.db.get_value("User", u, "enabled"):
+            seen.add(u)
+            result.append(u)
+    return result
+
+
+def _ladder_step_recipients(rec, step):
+    """Resolve recipients for a specific ladder step."""
+    users = []
+    if step.get("responsible"):
+        users.append(rec.get("responsible_person"))
+        if rec.get("backup_owner"):
+            users.append(rec.get("backup_owner"))
+    if step.get("dept_head"):
+        users.append(rec.get("department_head"))
+    if step.get("unit_head"):
+        users.append(rec.get("unit_head"))
+    if step.get("reviewer"):
+        users.append(rec.get("reviewer"))
+    if step.get("central_owner"):
+        users.append(rec.get("central_compliance_owner"))
+    if step.get("ceo"):
+        users += _users_with_role(CEO_ROLE)
+    if step.get("chairmans_office"):
+        users += _users_with_role(CHAIRMAN_OFFICE_ROLE)
+        users += _users_with_role("Compliance Chairman")
+        users += _users_with_role("Compliance Viewer")
+    return _clean_users(users)
+
+
+def _open_requests(extra):
+    filters = {"status": ["in", OPEN_STATUSES], "is_active": 1}
+    filters.update(extra)
+    return frappe.get_all(REQUEST_DOCTYPE, filters=filters, fields=REQUEST_FIELDS)
+
+
+def _already_logged(request, user, alert_type, days_before=0):
+    return frappe.db.exists(ALERT_LOG, {
+        "compliance_request": request, "recipient": user,
+        "alert_type": alert_type, "days_before": days_before,
+    })
+
+
+def _alert_content(rec, alert_type, days_before, urgent, note=None):
+    title = _compliance_title(rec)
+    prefix = _("URGENT: ") if urgent else ""
+    if alert_type == "Due Soon":
+        subject = _("{0}Compliance Alert: {1} due in {2} day(s) [{3}]").format(prefix, title, days_before, rec.risk_tier)
+        intro = _("This compliance is due in {0} day(s).").format(days_before)
+    elif alert_type == "Due Date":
+        subject = _("{0}Compliance due today: {1} [{2}]").format(prefix, title, rec.risk_tier)
+        intro = _("This compliance is due today and is not yet complete.")
+    elif alert_type == "Overdue":
+        if days_before > 0:
+            subject = _("{0}Compliance OVERDUE ({1} days): {2} [{3}]").format(prefix, days_before, title, rec.risk_tier)
+            intro = _("This compliance is overdue by {0} day(s). Please follow up immediately.").format(days_before)
+        else:
+            subject = _("{0}Compliance OVERDUE: {1} [{2}]").format(prefix, title, rec.risk_tier)
+            intro = _("This compliance is overdue. Please follow up immediately.")
+    elif alert_type == "Reassignment":
+        subject = _("Compliance reassigned: {0} [{1}]").format(title, rec.risk_tier)
+        intro = _("This compliance record has been reassigned.")
+    else:
+        subject = _("{0}Escalation: {1} [{2}]").format(prefix, title, rec.risk_tier)
+        intro = _("This alert has been escalated to you.")
+    note_html = f"<p>{escape_html(note)}</p>" if note else ""
+    url = get_url_to_form(REQUEST_DOCTYPE, rec.name)
+    due = frappe.format(rec.due_date, {"fieldtype": "Date"}) if rec.due_date else "-"
+    message = f"""
+        <p>{escape_html(intro)}</p>{note_html}
+        <table style="border-collapse:collapse;">
+          <tr><td style="padding:4px 8px;"><b>Record</b></td><td><a href="{url}">{rec.name}</a></td></tr>
+          <tr><td style="padding:4px 8px;"><b>Compliance</b></td><td>{escape_html(title)}</td></tr>
+          <tr><td style="padding:4px 8px;"><b>Due Date</b></td><td>{due}</td></tr>
+          <tr><td style="padding:4px 8px;"><b>Status</b></td><td>{rec.status}</td></tr>
+          <tr><td style="padding:4px 8px;"><b>Risk Tier</b></td><td>{rec.risk_tier}</td></tr>
         </table>
-        <p>Please upload mandatory evidence and request closure before the due date.</p>
-        """
-    ).format(
-        days=days_before,
-        url=record_url,
-        name=rec.name,
-        compliance_name=_compliance_title(rec),
-        due_date=rec.due_date,
-        status=rec.status,
-        risk_tier=rec.risk_tier,
+        <p>Open the record and click <b>Acknowledge Alert</b> to confirm you have seen this.</p>
+    """
+    return subject, message
+
+
+def _send_alert(rec, user, alert_type, days_before=0, urgent=False, note=None, escalated_from=None):
+    """Email one person and write the Alert Log row (who, when, Sent / Failed)."""
+    log = frappe.get_doc({
+        "doctype": ALERT_LOG,
+        "compliance_request": rec.name,
+        "recipient": user,
+        "alert_type": alert_type,
+        "days_before": days_before,
+        "sent_on": now_datetime(),
+        "delivery_status": "Failed",
+        "escalated_from": escalated_from,
+    })
+    email = frappe.db.get_value("User", user, "email")
+    if not email:
+        log.failure_reason = _("The user has no email address.")
+    else:
+        subject, message = _alert_content(rec, alert_type, days_before, urgent, note)
+        try:
+            frappe.sendmail(
+                recipients=[email], subject=subject, message=message,
+                reference_doctype=REQUEST_DOCTYPE, reference_name=rec.name, now=True,
+            )
+            log.delivery_status = "Sent"
+        except Exception as e:
+            log.failure_reason = str(e)[:500]
+            frappe.logger("compliance_alerts").error(f"Alert FAILED: {rec.name} | {alert_type} | {user} | {e}")
+    log.insert(ignore_permissions=True)
+    if alert_type == "Escalation":
+        from sahayog_group.sahayog_group.audit import log_event
+
+        log_event("Escalated", REQUEST_DOCTYPE, rec.name, request=rec.name, new=user, details=note, old=escalated_from)
+    return log
+
+
+def send_compliance_alerts():
+    """
+    Daily job: evaluate Escalation Ladder steps from the Settings tab of each Compliance.
+    Handles 'Before Due Date', 'On Due Date', and 'After Due Date' triggers.
+    Each recipient gets an alert at most once per trigger step.
+    """
+    today = getdate(nowdate())
+    count = 0
+
+    open_requests = frappe.get_all(
+        REQUEST_DOCTYPE,
+        filters={"status": ["in", OPEN_STATUSES + ["Overdue"]], "is_active": 1},
+        fields=REQUEST_FIELDS,
     )
 
+    for rec in open_requests:
+        if not rec.due_date:
+            continue
+        cfg = _alert_config(rec.compliance)
+        if not cfg or not cfg.get("ladder"):
+            continue
+
+        due_date = getdate(rec.due_date)
+        diff_days = (due_date - today).days  # > 0 means before, == 0 means on due date, < 0 means after due date
+
+        for step in cfg["ladder"]:
+            offset_type = step.get("offset_type")
+            step_days = step.get("days", 0)
+            should_fire = False
+            alert_type = "Due Soon"
+            logged_day = step_days
+
+            if offset_type == "Before Due Date" and diff_days > 0 and diff_days == step_days:
+                should_fire = True
+                alert_type = "Due Soon"
+                logged_day = step_days
+            elif offset_type == "On Due Date" and diff_days == 0:
+                should_fire = True
+                alert_type = "Due Date"
+                logged_day = 0
+            elif offset_type == "After Due Date" and diff_days < 0 and abs(diff_days) == step_days:
+                should_fire = True
+                alert_type = "Overdue"
+                logged_day = step_days
+
+            if not should_fire:
+                continue
+
+            urgent = step.get("urgent") or (alert_type in ("Due Date", "Overdue"))
+            for user in _ladder_step_recipients(rec, step):
+                if not _already_logged(rec.name, user, alert_type, logged_day):
+                    _send_alert(rec, user, alert_type, logged_day, urgent=urgent)
+                    count += 1
+
+    if count:
+        frappe.db.commit()
+    return count
+
+
+def _escalate_overdue(name):
+    """Called when status flips to Overdue: notify recipients configured in overdue ladder steps or central owner."""
     try:
-        frappe.sendmail(
-            recipients=recipients,
-            subject=subject,
-            message=message,
-            reference_doctype=REQUEST_DOCTYPE,
-            reference_name=rec.name,
-            now=True,
-        )
-        frappe.logger("compliance_alerts").info(
-            f"Alert sent: {rec.name} | {days_before}d | to={recipients}"
-        )
+        rec = frappe.db.get_value(REQUEST_DOCTYPE, name, REQUEST_FIELDS, as_dict=True)
+        if not rec:
+            return
+        cfg = _alert_config(rec.compliance)
+        notified = False
+        if cfg and cfg.get("ladder"):
+            for step in cfg["ladder"]:
+                if step.get("offset_type") == "After Due Date":
+                    for user in _ladder_step_recipients(rec, step):
+                        if not _already_logged(rec.name, user, "Overdue", step.get("days", 0)):
+                            _send_alert(rec, user, "Overdue", step.get("days", 0), urgent=True)
+                            notified = True
+        if not notified:
+            # Fallback if no After Due Date step configured yet
+            users = _clean_users([rec.responsible_person, rec.department_head, rec.unit_head, rec.central_compliance_owner])
+            for user in users:
+                if not _already_logged(rec.name, user, "Overdue", 0):
+                    _send_alert(rec, user, "Overdue", 0, urgent=True)
     except Exception as e:
-        frappe.logger("compliance_alerts").error(
-            f"Alert FAILED: {rec.name} | {days_before}d | error={e}"
+        frappe.logger("compliance_alerts").error(f"Overdue escalation FAILED: {name} | {e}")
+
+
+def _manager_for(rec, recipient):
+    """Owner's manager: Department Head, then Unit Head, then Central Compliance Owner (the next one above the recipient)."""
+    chain = ["department_head", "unit_head", "central_compliance_owner"]
+    start = 0
+    for i, field in enumerate(chain):
+        if rec.get(field) == recipient:
+            start = i + 1
+    for field in chain[start:]:
+        user = rec.get(field)
+        if user and user != recipient and _clean_users([user]):
+            return user
+    return None
+
+
+def escalate_unacknowledged_alerts():
+    """Daily job: an alert not acknowledged within the window of its Compliance goes to the owner's manager (BRD section 11)."""
+    now = now_datetime()
+    pending = frappe.get_all(
+        ALERT_LOG,
+        filters={"acknowledged": 0, "escalated": 0, "alert_type": ["not in", ["Escalation", "Reassignment"]]},
+        fields=["name", "compliance_request", "recipient", "alert_type", "sent_on"],
+    )
+    count = 0
+    for row in pending:
+        rec = frappe.db.get_value(REQUEST_DOCTYPE, row.compliance_request, REQUEST_FIELDS, as_dict=True)
+        if not rec or rec.status not in OPEN_STATUSES + ["Overdue"]:
+            continue
+        cfg = _alert_config(rec.compliance)
+        window = cfg["window"] if cfg else 2
+        if not row.sent_on or row.sent_on >= add_to_date(now, days=-window):
+            continue
+        manager = _manager_for(rec, row.recipient)
+        if not manager:
+            continue
+        note = _("{0} has not acknowledged the earlier {1} alert.").format(row.recipient, row.alert_type)
+        _send_alert(rec, manager, "Escalation", 0, urgent=True, note=note, escalated_from=row.name)
+        frappe.db.set_value(ALERT_LOG, row.name, {"escalated": 1, "escalated_on": now_datetime()})
+        count += 1
+
+    if count:
+        frappe.db.commit()
+    return count
+
+
+def _notify_reassignment(name, old_owner, new_owner, new_backup, reason, by):
+    """Tell the new owner, the new backup and the previous owner (mail + Alert Log row of type Reassignment)."""
+    try:
+        rec = frappe.db.get_value(REQUEST_DOCTYPE, name, REQUEST_FIELDS, as_dict=True)
+        if not rec:
+            return
+        note = _("Reassigned by {0}: Responsible Person {1} -> {2}. Reason: {3}").format(
+            by, old_owner or "-", new_owner, reason
         )
+        for user in _clean_users([new_owner, new_backup, old_owner]):
+            _send_alert(rec, user, "Reassignment", 0, False, note)
+    except Exception as e:
+        frappe.logger("compliance_alerts").error(f"Reassignment mail FAILED: {name} | {e}")
+
+
+@frappe.whitelist()
+def get_pending_alert_count(name):
+    frappe.has_permission(REQUEST_DOCTYPE, "read", name, throw=True)
+    return frappe.db.count(ALERT_LOG, {"compliance_request": name, "recipient": frappe.session.user, "acknowledged": 0})
+
+
+@frappe.whitelist()
+def acknowledge_alerts(name):
+    """The logged-in user confirms they have seen the alerts sent to them for this Request."""
+    frappe.has_permission(REQUEST_DOCTYPE, "read", name, throw=True)
+    rows = frappe.get_all(
+        ALERT_LOG,
+        filters={"compliance_request": name, "recipient": frappe.session.user, "acknowledged": 0},
+        pluck="name",
+    )
+    for row in rows:
+        frappe.db.set_value(ALERT_LOG, row, {"acknowledged": 1, "acknowledged_on": now_datetime()})
+    if rows:
+        frappe.get_doc(REQUEST_DOCTYPE, name).add_comment("Comment", f"Alert acknowledged by {frappe.session.user}")
+    return len(rows)

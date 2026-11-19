@@ -16,6 +16,7 @@
   "is_active",
   "cb_details_1",
   "department",
+  "department_head",
   "company",
   "obligation_type",
   "issuing_authority",
@@ -28,14 +29,8 @@
   "applicability_review_date",
   "applicability_reviewer",
   "assignment_tab",
-  "people_section",
-  "responsible_person",
-  "backup_owner",
-  "unit_head",
-  "cb_people_1",
-  "reviewer",
-  "department_head",
-  "central_compliance_owner",
+  "assignments_section",
+  "assignments",
   "schedule_tab",
   "schedule_section",
   "recurrence",
@@ -44,12 +39,25 @@
   "notice_period_days",
   "cb_schedule_1",
   "days_to_start_in_advance",
+  "precreate_section",
+  "precreate_status",
+  "precreate_period",
+  "cb_precreate_1",
+  "precreate_count",
+  "precreate_requested_by",
   "risk_tier",
   "is_critical",
   "risk_consequence",
   "evidence_tab",
   "evidence_section",
   "evidence_rules",
+  "alert_and_escalation_tab",
+  "alert_ladder_section",
+  "alert_days",
+  "alert_timing_section",
+  "overdue_grace_days",
+  "cb_alert_timing_1",
+  "acknowledgement_window_days",
   "request_tab",
   "html_filg"
  ],
@@ -143,41 +151,15 @@
    "label": "Assignment"
   },
   {
-   "fieldname": "people_section",
+   "fieldname": "assignments_section",
    "fieldtype": "Section Break",
-   "label": "Responsible People"
+   "label": "Assignments"
   },
   {
-   "fieldname": "responsible_person",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Responsible Person",
-   "options": "User",
-   "reqd": 1
-  },
-  {
-   "fieldname": "backup_owner",
-   "fieldtype": "Link",
-   "label": "Backup Owner",
-   "options": "User"
-  },
-  {
-   "fieldname": "cb_people_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "reviewer",
-   "fieldtype": "Link",
-   "label": "Reviewer",
-   "options": "User",
-   "reqd": 1
-  },
-  {
-   "fieldname": "department_head",
-   "fieldtype": "Link",
-   "label": "Department Head",
-   "options": "User",
-   "fetch_from": "department.department_head"
+   "fieldname": "assignments",
+   "fieldtype": "Table",
+   "label": "Assignments",
+   "options": "Compliance Assignment Item"
   },
   {
    "fieldname": "schedule_tab",
@@ -242,6 +224,46 @@
    "options": "Evidence Rule"
   },
   {
+   "fieldname": "alert_and_escalation_tab",
+   "fieldtype": "Tab Break",
+   "label": "Alert &  Escalation"
+  },
+  {
+   "description": "Define alert triggers and recipients before, on, or after due date",
+   "fieldname": "alert_ladder_section",
+   "fieldtype": "Section Break",
+   "label": "Escalation Ladder"
+  },
+  {
+   "fieldname": "alert_days",
+   "fieldtype": "Table",
+   "label": "Alert Schedule",
+   "options": "Alert Schedule"
+  },
+  {
+   "fieldname": "alert_timing_section",
+   "fieldtype": "Section Break",
+   "label": "Timing"
+  },
+  {
+   "default": "2",
+   "description": "Days after the due date before an unverified record is escalated as overdue",
+   "fieldname": "overdue_grace_days",
+   "fieldtype": "Int",
+   "label": "Overdue Grace Days"
+  },
+  {
+   "fieldname": "cb_alert_timing_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "2",
+   "description": "Days a recipient has to acknowledge an alert before escalation",
+   "fieldname": "acknowledgement_window_days",
+   "fieldtype": "Int",
+   "label": "Acknowledgement Window Days"
+  },
+  {
    "fieldname": "request_tab",
    "fieldtype": "Tab Break",
    "label": "Request"
@@ -281,20 +303,6 @@
    "label": "Applicable Service / Unit"
   },
   {
-   "description": "Head of the hospital / project unit",
-   "fieldname": "unit_head",
-   "fieldtype": "Link",
-   "label": "Unit Head",
-   "options": "User"
-  },
-  {
-   "description": "Central group compliance owner if applicable",
-   "fieldname": "central_compliance_owner",
-   "fieldtype": "Link",
-   "label": "Central Compliance Owner",
-   "options": "User"
-  },
-  {
    "description": "Certificate / licence expiry date at record level",
    "fieldname": "validity_end",
    "fieldtype": "Date",
@@ -312,12 +320,56 @@
    "fieldname": "risk_consequence",
    "fieldtype": "Small Text",
    "label": "Risk / Consequence"
+  },
+  {
+   "fieldname": "department_head",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Department Head",
+   "read_only": 1,
+   "fetch_from": "department.department_head",
+   "hidden": 1
+  },
+  {
+   "fieldname": "precreate_section",
+   "fieldtype": "Section Break",
+   "label": "Pre-create Requests"
+  },
+  {
+   "fieldname": "precreate_status",
+   "fieldtype": "Data",
+   "label": "Pre-create Status",
+   "read_only": 1,
+   "description": "Use the Pre-create Records Request button"
+  },
+  {
+   "fieldname": "precreate_period",
+   "fieldtype": "Data",
+   "label": "Pre-create Recurrence",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_precreate_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "precreate_count",
+   "fieldtype": "Int",
+   "label": "Records Requested",
+   "read_only": 1
+  },
+  {
+   "fieldname": "precreate_requested_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Requested By",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-11-04 17:15:13.499852",
+ "modified": "2026-11-18 15:45:12.091603",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",

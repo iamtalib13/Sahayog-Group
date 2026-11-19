@@ -10,6 +10,8 @@
   "is_mandatory",
   "is_payment_proof",
   "file",
+  "version_no",
+  "change_reason",
   "document_date",
   "period",
   "expiry_date",
@@ -91,13 +93,27 @@
    "read_only": 1,
    "in_list_view": 0,
    "description": "Timestamp when file was uploaded"
+  },
+  {
+   "fieldname": "version_no",
+   "fieldtype": "Int",
+   "label": "Version No",
+   "read_only": 1,
+   "default": "1"
+  },
+  {
+   "fieldname": "change_reason",
+   "fieldtype": "Small Text",
+   "label": "Change Reason",
+   "depends_on": "eval:doc.file && !doc.__islocal",
+   "description": "Required when an uploaded file is replaced"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-22 16:17:05.019430",
+ "modified": "2026-11-18 10:52:22.123027",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Evidence Item",

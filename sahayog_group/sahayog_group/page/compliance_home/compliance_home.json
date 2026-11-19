@@ -1,0 +1,53 @@
+{
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "house",
+ "idx": 0,
+ "module": "Sahayog Group",
+ "name": "compliance-home",
+ "page_name": "compliance-home",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Compliance Master Admin"
+  },
+  {
+   "role": "Compliance Chairman"
+  },
+  {
+   "role": "Compliance Executive"
+  },
+  {
+   "role": "Compliance Viewer"
+  },
+  {
+   "role": "Compliance Coordinator"
+  },
+  {
+   "role": "Compliance Operations Head"
+  },
+  {
+   "role": "Compliance Facility Head"
+  },
+  {
+   "role": "Compliance Department Head"
+  },
+  {
+   "role": "Compliance User"
+  },
+  {
+   "role": "Compliance Checker"
+  },
+  {
+   "role": "Compliance Auditor"
+  },
+  {
+   "role": "Compliance Project Head"
+  }
+ ],
+ "standard": "Yes",
+ "system_page": 0,
+ "title": "Home"
+}
