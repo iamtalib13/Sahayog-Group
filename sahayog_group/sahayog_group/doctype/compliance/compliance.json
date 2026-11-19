@@ -32,10 +32,10 @@
   "cb_schedule_1",
   "recurrence",
   "days_to_start_in_advance",
-  "cb_schedule_2",
+  "risk_section",
   "risk_tier",
+  "cb_risk_1",
   "is_critical",
-  "alert_days",
   "assignment_tab",
   "assignments_section",
   "assignments",
@@ -46,7 +46,9 @@
   "alert_timing_section",
   "overdue_grace_days",
   "cb_alert_timing_1",
-  "acknowledgement_window_days"
+  "acknowledgement_window_days",
+  "alert_ladder_section",
+  "alert_days"
  ],
  "fields": [
   {
@@ -170,10 +172,11 @@
    "fieldname": "start_date",
    "fieldtype": "Date",
    "label": "Start / Effective Date",
-   "reqd": 1
+   "reqd": 1,
+   "description": "Effective starting date of the compliance obligation or initial licence cycle."
   },
   {
-   "description": "Applicable for licences, agreements or limited-period obligations",
+   "description": "Expiration date for time-bound obligations (licences, leases, or agreements). Leave blank for perpetual.",
    "fieldname": "end_date",
    "fieldtype": "Date",
    "label": "Validity End / Expiry Date"
@@ -188,18 +191,20 @@
    "fieldtype": "Select",
    "label": "Recurrence",
    "options": "One-Time\nMonthly\nQuarterly\nHalf-Yearly\nAnnual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years\nEvent-Based",
-   "reqd": 1
+   "reqd": 1,
+   "description": "Frequency of renewal or statutory filing (e.g., Monthly, Annual, One-Time)."
   },
   {
    "default": "30",
-   "description": "Lead time before due date to initiate request",
+   "description": "Lead time in days before due date when the compliance request should auto-trigger.",
    "fieldname": "days_to_start_in_advance",
    "fieldtype": "Int",
    "label": "Days to Start in Advance"
   },
   {
-   "fieldname": "cb_schedule_2",
-   "fieldtype": "Column Break"
+   "fieldname": "risk_section",
+   "fieldtype": "Section Break",
+   "label": "Risk & Governance Control"
   },
   {
    "default": "Medium",
@@ -207,20 +212,19 @@
    "fieldtype": "Select",
    "label": "Risk Tier",
    "options": "Low\nMedium\nHigh\nCritical",
-   "reqd": 1
+   "reqd": 1,
+   "description": "Classification of business, patient-safety, or regulatory impact (Low, Medium, High, Critical)."
+  },
+  {
+   "fieldname": "cb_risk_1",
+   "fieldtype": "Column Break"
   },
   {
    "default": "0",
-   "description": "Strict Maker-Checker control: Submitter cannot approve",
+   "description": "Strict Maker-Checker control: The person executing cannot approve closure.",
    "fieldname": "is_critical",
    "fieldtype": "Check",
    "label": "Is Critical (Enforce Maker-Checker)"
-  },
-  {
-   "fieldname": "alert_days",
-   "fieldtype": "Table",
-   "label": "Alert Schedule",
-   "options": "Alert Schedule"
   },
   {
    "fieldname": "assignment_tab",
@@ -262,13 +266,14 @@
   {
    "fieldname": "alert_timing_section",
    "fieldtype": "Section Break",
-   "label": "Timing & Window"
+   "label": "Timing & Window Rules"
   },
   {
    "default": "0",
    "fieldname": "overdue_grace_days",
    "fieldtype": "Int",
-   "label": "Overdue Grace Days"
+   "label": "Overdue Grace Days",
+   "description": "Grace period (in days) allowed after the statutory due date before critical escalation triggers."
   },
   {
    "fieldname": "cb_alert_timing_1",
@@ -278,7 +283,20 @@
    "default": "3",
    "fieldname": "acknowledgement_window_days",
    "fieldtype": "Int",
-   "label": "Acknowledgement Window (Days)"
+   "label": "Acknowledgement Window (Days)",
+   "description": "Maximum allowed days for the assigned owner to acknowledge alert notifications."
+  },
+  {
+   "fieldname": "alert_ladder_section",
+   "fieldtype": "Section Break",
+   "label": "Escalation Ladder & Alert Triggers"
+  },
+  {
+   "fieldname": "alert_days",
+   "fieldtype": "Table",
+   "label": "Alert Schedule",
+   "options": "Alert Schedule",
+   "description": "Configured notification timeline and escalation hierarchy based on days relative to due date."
   }
  ],
  "grid_page_length": 50,

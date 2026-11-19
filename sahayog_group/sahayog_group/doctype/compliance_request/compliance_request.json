@@ -95,7 +95,7 @@
    "read_only": 1
   },
   {
-   "fetch_from": "compliance.company",
+   "fetch_from": "compliance.compliance_company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",

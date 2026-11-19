@@ -46,7 +46,7 @@ class Compliance(Document):
     def validate_duplicate(self):
         """Same Compliance Name is allowed for a different Department / Project / Company, not for the same combination."""
         filters = {"compliance_name": self.compliance_name, "name": ["!=", self.name or ""]}
-        for f in ("department", "project", "company"):
+        for f in ("department", "project", "compliance_company"):
             value = self.get(f)
             filters[f] = value if value else ["is", "not set"]
         dup = frappe.db.exists("Compliance", filters)

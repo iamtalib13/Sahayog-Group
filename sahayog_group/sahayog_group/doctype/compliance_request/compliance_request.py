@@ -69,14 +69,16 @@ class ComplianceRequest(Document):
             return
         rule = frappe.db.get_value(
             RULE_DOCTYPE, self.compliance,
-            ["category", "department", "company", "project", "risk_tier"],
+            ["category", "department", "compliance_company", "project", "risk_tier"],
             as_dict=True,
         )
         if not rule:
             return
-        for f in ("category", "department", "company", "project", "risk_tier"):
-            if rule.get(f):
-                self.set(f, rule.get(f))
+        self.category = rule.get("category")
+        self.department = rule.get("department")
+        self.company = rule.get("compliance_company")
+        self.project = rule.get("project")
+        self.risk_tier = rule.get("risk_tier")
 
         # Fetch role assignments from Compliance Assignment Item
         assignments = frappe.get_all(
