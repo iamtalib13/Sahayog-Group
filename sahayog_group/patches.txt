@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 sahayog_group.patches.seed_compliance_categories
 sahayog_group.patches.seed_compliance_companies
+sahayog_group.patches.seed_evidence_types
