@@ -299,4 +299,8 @@ doctype_js = {
 	"Compliance Request": "public/js/compliance_request_brd.js",
 }
 
+doctype_list_js = {
+	"Compliance": "public/js/compliance_list_custom.js",
+}
+
 after_migrate = ["sahayog_group.sahayog_group.roles.setup_roles"]

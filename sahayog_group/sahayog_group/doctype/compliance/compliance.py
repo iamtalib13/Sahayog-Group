@@ -311,3 +311,44 @@ def get_requests_html(compliance_name=None):
         "</table>"
         "</div>"
     )
+
+@frappe.whitelist()
+def get_pending_requests_summary(compliance_names=None):
+    """Return pending request counts and details for given compliance masters."""
+    import json
+    if isinstance(compliance_names, str):
+        try:
+            compliance_names = json.loads(compliance_names)
+        except Exception:
+            compliance_names = [compliance_names]
+
+    if not compliance_names:
+        return {}
+
+    open_statuses = [
+        "Draft", "Upcoming", "Action Required", "In Progress", "Application Submitted",
+        "Awaiting Authority / Third Party", "Blocked / At Risk", "Completion Submitted", "Overdue"
+    ]
+
+    records = frappe.get_all(
+        "Compliance Request",
+        filters={
+            "compliance": ["in", compliance_names],
+            "status": ["in", open_statuses]
+        },
+        fields=["name", "compliance", "status", "due_date", "responsible_person", "reviewer"],
+        order_by="due_date asc"
+    )
+
+    summary = {c: [] for c in compliance_names}
+    for r in records:
+        if r.compliance in summary:
+            summary[r.compliance].append({
+                "name": r.name,
+                "status": r.status,
+                "due_date": frappe.format(r.due_date, {"fieldtype": "Date"}) if r.due_date else "-",
+                "responsible_person": r.responsible_person or "-",
+                "reviewer": r.reviewer or "-"
+            })
+
+    return summary
