@@ -4,3 +4,5 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+sahayog_group.patches.seed_compliance_categories
+sahayog_group.patches.seed_compliance_companies
