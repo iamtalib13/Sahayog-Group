@@ -11,6 +11,8 @@ class Compliance(Document):
         self.validate_assignments()
         self.validate_duplicate()
         self.validate_maker_checker()
+        self.validate_rent_details()
+
 
     def fill_department_head(self):
         """Department Head comes from the Compliance Department and is kept in Assignments."""
@@ -68,6 +70,20 @@ class Compliance(Document):
                 title=_("Maker-Checker"),
             )
 
+
+
+    def validate_rent_details(self):
+        if self.category != "Rent & Lease":
+            return
+        
+        landlords = self.get("landlords") or []
+        if landlords:
+            total_ratio = sum(float(l.share_ratio or 0) for l in landlords)
+            if round(total_ratio, 2) != 100.0:
+                frappe.throw(
+                    _("Total Landlord Share Ratio must be exactly 100%. Current total: {0}%").format(total_ratio),
+                    title=_("Invalid Share Ratio")
+                )
 
 
 def _calc_due_date(start_d, recurrence):

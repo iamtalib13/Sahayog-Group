@@ -25,6 +25,27 @@
   "description",
   "cb_desc_1",
   "legal_basis",
+  "rent_property_section",
+  "sol_id",
+  "zone",
+  "branch_name",
+  "type_of_agreement",
+  "working_status",
+  "cb_rent_1",
+  "property_address",
+  "area_sq_ft",
+  "lock_in_period_months",
+  "lock_in_end_date",
+  "vacation_notice_months",
+  "renewal_notice_months",
+  "cb_rent_2",
+  "monthly_rent",
+  "security_deposit",
+  "increment_percentage",
+  "increment_frequency",
+  "next_increment_date",
+  "landlords_section",
+  "landlords",
   "schedule_tab",
   "schedule_section",
   "start_date",
@@ -65,21 +86,21 @@
    "label": "Primary Details"
   },
   {
+   "columns": 3,
    "fieldname": "compliance_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Compliance Name / Title",
-   "reqd": 1,
-   "columns": 3
+   "reqd": 1
   },
   {
+   "columns": 2,
    "fieldname": "category",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Category",
    "options": "Compliance Category",
-   "reqd": 1,
-   "columns": 2
+   "reqd": 1
   },
   {
    "fieldname": "obligation_type",
@@ -95,18 +116,19 @@
   {
    "fieldname": "compliance_company",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Company",
    "options": "Compliance Company",
    "reqd": 1
   },
   {
+   "columns": 2,
    "fieldname": "department",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Department",
    "options": "Compliance Department",
-   "reqd": 1,
-   "columns": 2
+   "reqd": 1
   },
   {
    "fieldname": "issuing_authority",
@@ -165,6 +187,140 @@
    "label": "Legal / Contractual Basis"
   },
   {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "rent_property_section",
+   "fieldtype": "Section Break",
+   "label": "Rent & Property Details"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "sol_id",
+   "fieldtype": "Data",
+   "label": "SOL ID",
+   "mandatory_depends_on": "eval:doc.category=='Rent & Lease'"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "label": "Zone"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "branch_name",
+   "fieldtype": "Data",
+   "label": "Branch Name",
+   "mandatory_depends_on": "eval:doc.category=='Rent & Lease'"
+  },
+  {
+   "default": "Commercial",
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "type_of_agreement",
+   "fieldtype": "Select",
+   "label": "Type of Agreement",
+   "options": "Commercial\nResidential\nOther"
+  },
+  {
+   "default": "Operational",
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "working_status",
+   "fieldtype": "Select",
+   "label": "Working Status",
+   "options": "Operational\nUnder Fit-out\nVacating"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "cb_rent_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "property_address",
+   "fieldtype": "Small Text",
+   "label": "Property Address"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "area_sq_ft",
+   "fieldtype": "Float",
+   "label": "Area (Sq Ft)"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "lock_in_period_months",
+   "fieldtype": "Int",
+   "label": "Lock-in Period (Months)"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "lock_in_end_date",
+   "fieldtype": "Date",
+   "label": "Lock-in End Date"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "vacation_notice_months",
+   "fieldtype": "Int",
+   "label": "Vacation Notice (Months)"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "renewal_notice_months",
+   "fieldtype": "Int",
+   "label": "Renewal Notice (Months)"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "cb_rent_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "monthly_rent",
+   "fieldtype": "Currency",
+   "label": "Monthly Rent as per Agreement",
+   "mandatory_depends_on": "eval:doc.category=='Rent & Lease'"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "security_deposit",
+   "fieldtype": "Currency",
+   "label": "Security Deposit"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "increment_percentage",
+   "fieldtype": "Percent",
+   "label": "Increment Percentage (%)"
+  },
+  {
+   "default": "Annual",
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "increment_frequency",
+   "fieldtype": "Select",
+   "label": "Increment Frequency",
+   "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "next_increment_date",
+   "fieldtype": "Date",
+   "label": "Next Increment Date"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "landlords_section",
+   "fieldtype": "Section Break",
+   "label": "Landlords & Payment Allocation"
+  },
+  {
+   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "landlords",
+   "fieldtype": "Table",
+   "label": "Landlords",
+   "options": "Compliance Landlord Item"
+  },
+  {
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
    "label": "Schedule & Risk"
@@ -175,11 +331,11 @@
    "label": "Timeline & Recurrence"
   },
   {
+   "description": "Effective starting date of the compliance obligation or initial licence cycle.",
    "fieldname": "start_date",
    "fieldtype": "Date",
    "label": "Start / Effective Date",
-   "reqd": 1,
-   "description": "Effective starting date of the compliance obligation or initial licence cycle."
+   "reqd": 1
   },
   {
    "description": "Expiration date for time-bound obligations (licences, leases, or agreements). Leave blank for perpetual.",
@@ -193,12 +349,12 @@
   },
   {
    "default": "Annual",
+   "description": "Frequency of renewal or statutory filing (e.g., Monthly, Annual, One-Time).",
    "fieldname": "recurrence",
    "fieldtype": "Select",
    "label": "Recurrence",
    "options": "One-Time\nMonthly\nQuarterly\nHalf-Yearly\nAnnual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years\nEvent-Based",
-   "reqd": 1,
-   "description": "Frequency of renewal or statutory filing (e.g., Monthly, Annual, One-Time)."
+   "reqd": 1
   },
   {
    "default": "30",
@@ -214,12 +370,12 @@
   },
   {
    "default": "Medium",
+   "description": "Classification of business, patient-safety, or regulatory impact (Low, Medium, High, Critical).",
    "fieldname": "risk_tier",
    "fieldtype": "Select",
    "label": "Risk Tier",
    "options": "Low\nMedium\nHigh\nCritical",
-   "reqd": 1,
-   "description": "Classification of business, patient-safety, or regulatory impact (Low, Medium, High, Critical)."
+   "reqd": 1
   },
   {
    "fieldname": "cb_risk_1",
@@ -276,10 +432,10 @@
   },
   {
    "default": "0",
+   "description": "Grace period (in days) allowed after the statutory due date before critical escalation triggers.",
    "fieldname": "overdue_grace_days",
    "fieldtype": "Int",
-   "label": "Overdue Grace Days",
-   "description": "Grace period (in days) allowed after the statutory due date before critical escalation triggers."
+   "label": "Overdue Grace Days"
   },
   {
    "fieldname": "cb_alert_timing_1",
@@ -287,10 +443,10 @@
   },
   {
    "default": "3",
+   "description": "Maximum allowed days for the assigned owner to acknowledge alert notifications.",
    "fieldname": "acknowledgement_window_days",
    "fieldtype": "Int",
-   "label": "Acknowledgement Window (Days)",
-   "description": "Maximum allowed days for the assigned owner to acknowledge alert notifications."
+   "label": "Acknowledgement Window (Days)"
   },
   {
    "fieldname": "alert_ladder_section",
@@ -298,11 +454,11 @@
    "label": "Escalation Ladder & Alert Triggers"
   },
   {
+   "description": "Configured notification timeline and escalation hierarchy based on days relative to due date.",
    "fieldname": "alert_days",
    "fieldtype": "Table",
    "label": "Alert Schedule",
-   "options": "Alert Schedule",
-   "description": "Configured notification timeline and escalation hierarchy based on days relative to due date."
+   "options": "Alert Schedule"
   },
   {
    "fieldname": "request_tab",
@@ -324,7 +480,7 @@
  "index_web_pages_for_search": 1,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-19 22:36:14.218860",
+ "modified": "2026-11-20 11:51:42.876296",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",

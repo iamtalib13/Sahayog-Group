@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-11-20 12:24:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "landlord_name",
+  "landlord_pan",
+  "share_ratio",
+  "col_break_1",
+  "payment_mode",
+  "sahayog_account_no",
+  "bank_name",
+  "bank_account_no",
+  "ifsc_code",
+  "col_break_2",
+  "tds_applicable",
+  "tds_rate",
+  "gst_applicable",
+  "landlord_gstin"
+ ],
+ "fields": [
+  {
+   "fieldname": "landlord_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Landlord Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "landlord_pan",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Landlord PAN"
+  },
+  {
+   "default": "100",
+   "fieldname": "share_ratio",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Share Ratio (%)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Sahayog Savings Account",
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Payment Mode",
+   "options": "Sahayog Savings Account\nExternal Bank - NEFT",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.payment_mode=='Sahayog Savings Account'",
+   "fieldname": "sahayog_account_no",
+   "fieldtype": "Data",
+   "label": "Sahayog Savings A/c No"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
+   "fieldname": "bank_account_no",
+   "fieldtype": "Data",
+   "label": "Bank Account No"
+  },
+  {
+   "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
+   "fieldname": "ifsc_code",
+   "fieldtype": "Data",
+   "label": "IFSC Code"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "tds_applicable",
+   "fieldtype": "Check",
+   "label": "TDS Applicable"
+  },
+  {
+   "default": "10",
+   "depends_on": "eval:doc.tds_applicable==1",
+   "fieldname": "tds_rate",
+   "fieldtype": "Percent",
+   "label": "TDS Rate (%)"
+  },
+  {
+   "default": "0",
+   "fieldname": "gst_applicable",
+   "fieldtype": "Check",
+   "label": "GST Applicable"
+  },
+  {
+   "depends_on": "eval:doc.gst_applicable==1",
+   "fieldname": "landlord_gstin",
+   "fieldtype": "Data",
+   "label": "Landlord GSTIN"
+  }
+ ],
+ "grid_page_length": 50,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-20 12:24:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sahayog Group",
+ "name": "Compliance Landlord Item",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
