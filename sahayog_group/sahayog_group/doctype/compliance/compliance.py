@@ -7,6 +7,10 @@ from frappe.utils import add_days, add_months, getdate, nowdate
 class Compliance(Document):
     def validate(self):
         self.compliance_name = (self.compliance_name or getattr(self, "compliance", None) or "").strip()
+        if self.is_rent:
+            self.category = "Rent & Lease"
+            if not self.obligation_type:
+                self.obligation_type = "Agreement"
         self.fill_department_head()
         self.validate_assignments()
         self.validate_duplicate()
@@ -73,7 +77,7 @@ class Compliance(Document):
 
 
     def validate_rent_details(self):
-        if self.category != "Rent & Lease":
+        if not self.is_rent and self.category != "Rent & Lease":
             return
         
         landlords = self.get("landlords") or []
@@ -193,57 +197,6 @@ def check_and_create_all_compliance_requests():
             frappe.db.rollback()
             frappe.log_error(frappe.get_traceback(), "Auto-create Compliance Request failed: %s" % name)
 
-
-MASTER_ROLES = ("System Manager", "Compliance Master Admin")
-PRECREATE_MAX = 120
-
-
-def _is_master(user=None):
-    return bool(set(MASTER_ROLES) & set(frappe.get_roles(user or frappe.session.user)))
-
-
-def _notify(users, subject, message, doc):
-    """In-app notification (bell icon) plus an email to each person."""
-    from frappe.utils import escape_html, get_url_to_form
-
-    link = get_url_to_form("Compliance", doc.name)
-    label = "{0} ({1})".format(doc.compliance_name, doc.name)
-    body = "<p>{0}</p><p><a href='{1}'>{2}</a></p>".format(escape_html(message), link, escape_html(label))
-    for user in dict.fromkeys(u for u in users if u):
-        try:
-            frappe.get_doc({
-                "doctype": "Notification Log",
-                "for_user": user,
-                "from_user": frappe.session.user,
-                "type": "Alert",
-                "document_type": "Compliance",
-                "document_name": doc.name,
-                "subject": escape_html(subject),
-                "email_content": body,
-            }).insert(ignore_permissions=True)
-        except Exception:
-            frappe.log_error(frappe.get_traceback(), "Pre-create notification failed")
-        email = frappe.db.get_value("User", user, "email")
-        if email:
-            try:
-                frappe.sendmail(
-                    recipients=[email], subject=subject, message=body,
-                    reference_doctype="Compliance", reference_name=doc.name,
-                )
-            except Exception:
-                frappe.log_error(frappe.get_traceback(), "Pre-create email failed")
-
-
-def _approvers(doc):
-    """The person who created the Compliance; if that person is not a Master, every Compliance Master Admin."""
-    users = [doc.owner]
-    if not _is_master(doc.owner):
-        users += frappe.get_all("Has Role", filters={"role": "Compliance Master Admin", "parenttype": "User"}, pluck="parent")
-    return users
-
-
-def _responsible(doc):
-    return doc.get_assignment_user("Responsible Person")
 
 @frappe.whitelist()
 def get_requests_html(compliance_name=None):

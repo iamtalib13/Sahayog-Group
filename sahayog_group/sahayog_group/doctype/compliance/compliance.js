@@ -3,34 +3,33 @@
 
 frappe.ui.form.on("Compliance", {
 	refresh(frm) {
+		set_category_indicator(frm);
 		load_requests_table(frm);
-		
+	},
+	category(frm) {
+		set_category_indicator(frm);
+	},
+	is_rent(frm) {
+		if (frm.doc.is_rent) {
+			frm.set_value("category", "Rent & Lease");
+			if (!frm.doc.obligation_type) frm.set_value("obligation_type", "Agreement");
+			if (!frm.doc.recurrence) frm.set_value("recurrence", "Monthly");
+		}
 	},
 	department(frm) {
 		fill_department_head(frm);
-	},
-	before_save(frm) {
-		frm._was_new = frm.is_new();
-	},
-	after_save(frm) {
-		if (frm._was_new && frm.doc.is_active && is_master()) {
-			frm._was_new = false;
-			frappe.confirm(
-				__("Do you want to pre-create records in advance for this compliance?"),
-				() => call_precreate("precreate_ask", { answer: "Yes" }, frm),
-				() => call_precreate("precreate_ask", { answer: "No" }, frm)
-			);
-		}
 	},
 	request_tab(frm) {
 		load_requests_table(frm);
 	},
 });
 
-const PRECREATE = "sahayog_group.sahayog_group.doctype.compliance.compliance.";
-
-function is_master() {
-	return frappe.user.has_role("System Manager") || frappe.user.has_role("Compliance Master Admin");
+function set_category_indicator(frm) {
+	if (frm.doc.category) {
+		frm.page.set_indicator(frm.doc.category, "blue");
+	} else {
+		frm.page.clear_indicator();
+	}
 }
 
 function is_owner_user(frm) {

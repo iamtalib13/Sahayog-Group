@@ -21,26 +21,31 @@
   "is_active",
   "is_project_based",
   "project",
+  "is_rent",
   "description_section",
   "description",
   "cb_desc_1",
   "legal_basis",
-  "rent_property_section",
+  "rent_details_tab",
+  "branch_property_section",
   "sol_id",
   "zone",
   "branch_name",
+  "cb_rent_prop_1",
   "type_of_agreement",
   "working_status",
-  "cb_rent_1",
-  "property_address",
   "area_sq_ft",
+  "property_address",
+  "tenure_notice_section",
   "lock_in_period_months",
   "lock_in_end_date",
+  "cb_rent_tenure_1",
   "vacation_notice_months",
   "renewal_notice_months",
-  "cb_rent_2",
+  "financial_escalation_section",
   "monthly_rent",
   "security_deposit",
+  "cb_rent_fin_1",
   "increment_percentage",
   "increment_frequency",
   "next_increment_date",
@@ -60,16 +65,15 @@
   "assignment_tab",
   "assignments_section",
   "assignments",
-  "evidence_tab",
-  "evidence_section",
-  "evidence_rules",
-  "alert_and_escalation_tab",
   "alert_timing_section",
   "overdue_grace_days",
   "cb_alert_timing_1",
   "acknowledgement_window_days",
   "alert_ladder_section",
   "alert_days",
+  "evidence_tab",
+  "evidence_section",
+  "evidence_rules",
   "request_tab",
   "requests_section",
   "html_filg"
@@ -168,6 +172,12 @@
    "options": "Compliance Project"
   },
   {
+   "default": "0",
+   "fieldname": "is_rent",
+   "fieldtype": "Check",
+   "label": "Is Rent & Lease"
+  },
+  {
    "fieldname": "description_section",
    "fieldtype": "Section Break",
    "label": "Scope & Legal Reference"
@@ -187,34 +197,39 @@
    "label": "Legal / Contractual Basis"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
-   "fieldname": "rent_property_section",
-   "fieldtype": "Section Break",
-   "label": "Rent & Property Details"
+   "depends_on": "eval:doc.is_rent==1",
+   "fieldname": "rent_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Rent Details"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "branch_property_section",
+   "fieldtype": "Section Break",
+   "label": "Branch & Property Identification"
+  },
+  {
    "fieldname": "sol_id",
    "fieldtype": "Data",
    "label": "SOL ID",
-   "mandatory_depends_on": "eval:doc.category=='Rent & Lease'"
+   "mandatory_depends_on": "eval:doc.is_rent==1"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "zone",
    "fieldtype": "Data",
    "label": "Zone"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "branch_name",
    "fieldtype": "Data",
    "label": "Branch Name",
-   "mandatory_depends_on": "eval:doc.category=='Rent & Lease'"
+   "mandatory_depends_on": "eval:doc.is_rent==1"
+  },
+  {
+   "fieldname": "cb_rent_prop_1",
+   "fieldtype": "Column Break"
   },
   {
    "default": "Commercial",
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "type_of_agreement",
    "fieldtype": "Select",
    "label": "Type of Agreement",
@@ -222,99 +237,93 @@
   },
   {
    "default": "Operational",
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "working_status",
    "fieldtype": "Select",
    "label": "Working Status",
    "options": "Operational\nUnder Fit-out\nVacating"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
-   "fieldname": "cb_rent_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
-   "fieldname": "property_address",
-   "fieldtype": "Small Text",
-   "label": "Property Address"
-  },
-  {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "area_sq_ft",
    "fieldtype": "Float",
    "label": "Area (Sq Ft)"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "property_address",
+   "fieldtype": "Small Text",
+   "label": "Property Address"
+  },
+  {
+   "fieldname": "tenure_notice_section",
+   "fieldtype": "Section Break",
+   "label": "Tenure & Notice Terms"
+  },
+  {
    "fieldname": "lock_in_period_months",
    "fieldtype": "Int",
    "label": "Lock-in Period (Months)"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "lock_in_end_date",
    "fieldtype": "Date",
    "label": "Lock-in End Date"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "cb_rent_tenure_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "vacation_notice_months",
    "fieldtype": "Int",
    "label": "Vacation Notice (Months)"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "renewal_notice_months",
    "fieldtype": "Int",
    "label": "Renewal Notice (Months)"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
-   "fieldname": "cb_rent_2",
-   "fieldtype": "Column Break"
+   "fieldname": "financial_escalation_section",
+   "fieldtype": "Section Break",
+   "label": "Financial & Escalation Terms"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "monthly_rent",
    "fieldtype": "Currency",
    "label": "Monthly Rent as per Agreement",
-   "mandatory_depends_on": "eval:doc.category=='Rent & Lease'"
+   "mandatory_depends_on": "eval:doc.is_rent==1"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "security_deposit",
    "fieldtype": "Currency",
    "label": "Security Deposit"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
+   "fieldname": "cb_rent_fin_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "increment_percentage",
    "fieldtype": "Percent",
    "label": "Increment Percentage (%)"
   },
   {
    "default": "Annual",
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "increment_frequency",
    "fieldtype": "Select",
    "label": "Increment Frequency",
    "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "next_increment_date",
    "fieldtype": "Date",
    "label": "Next Increment Date"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "landlords_section",
    "fieldtype": "Section Break",
    "label": "Landlords & Payment Allocation"
   },
   {
-   "depends_on": "eval:doc.category=='Rent & Lease'",
    "fieldname": "landlords",
    "fieldtype": "Table",
    "label": "Landlords",
@@ -405,27 +414,6 @@
    "options": "Compliance Assignment Item"
   },
   {
-   "fieldname": "evidence_tab",
-   "fieldtype": "Tab Break",
-   "label": "Evidence Rules"
-  },
-  {
-   "fieldname": "evidence_section",
-   "fieldtype": "Section Break",
-   "label": "Mandatory & Optional Evidence"
-  },
-  {
-   "fieldname": "evidence_rules",
-   "fieldtype": "Table",
-   "label": "Evidence Rules",
-   "options": "Evidence Rule"
-  },
-  {
-   "fieldname": "alert_and_escalation_tab",
-   "fieldtype": "Tab Break",
-   "label": "Alerts & Escalation"
-  },
-  {
    "fieldname": "alert_timing_section",
    "fieldtype": "Section Break",
    "label": "Timing & Window Rules"
@@ -461,6 +449,22 @@
    "options": "Alert Schedule"
   },
   {
+   "fieldname": "evidence_tab",
+   "fieldtype": "Tab Break",
+   "label": "Evidence Rules"
+  },
+  {
+   "fieldname": "evidence_section",
+   "fieldtype": "Section Break",
+   "label": "Mandatory & Optional Evidence"
+  },
+  {
+   "fieldname": "evidence_rules",
+   "fieldtype": "Table",
+   "label": "Evidence Rules",
+   "options": "Evidence Rule"
+  },
+  {
    "fieldname": "request_tab",
    "fieldtype": "Tab Break",
    "label": "Requests"
@@ -480,7 +484,7 @@
  "index_web_pages_for_search": 1,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-20 11:51:42.876296",
+ "modified": "2026-11-20 13:28:27.147014",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",
