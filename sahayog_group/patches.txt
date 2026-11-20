@@ -7,3 +7,4 @@
 sahayog_group.patches.seed_compliance_categories
 sahayog_group.patches.seed_compliance_companies
 sahayog_group.patches.seed_evidence_types
+sahayog_group.patches.sync_compliance_sidebar_and_workspace
