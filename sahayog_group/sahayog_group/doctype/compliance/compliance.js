@@ -2,6 +2,16 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Compliance", {
+	setup(frm) {
+		frm.set_query("branch", () => {
+			return {
+				query: "sahayog_group.sahayog_group.doctype.compliance.compliance.cost_center_query",
+				filters: {
+					is_group: 0,
+				},
+			};
+		});
+	},
 	refresh(frm) {
 		set_category_indicator(frm);
 		load_requests_table(frm);

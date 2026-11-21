@@ -3,12 +3,11 @@
  "allow_bulk_edit": 1,
  "allow_rename": 1,
  "autoname": "COMP-.YYYY.-.#####",
- "creation": "2026-11-20 17:46:02.507904",
+ "creation": "2026-11-21 14:39:59.904423",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "details_tab",
-  "is_rent",
   "compliance_details_section",
   "compliance_name",
   "category",
@@ -22,17 +21,15 @@
   "is_active",
   "is_project_based",
   "project",
-  "predecessor",
-  "is_critical_path",
+  "is_rent",
   "description_section",
   "description",
   "cb_desc_1",
   "legal_basis",
   "rent_details_tab",
   "branch_property_section",
-  "sol_id",
   "zone",
-  "branch_name",
+  "branch",
   "cb_rent_prop_1",
   "type_of_agreement",
   "working_status",
@@ -78,7 +75,9 @@
   "evidence_rules",
   "request_tab",
   "requests_section",
-  "html_filg"
+  "html_filg",
+  "predecessor",
+  "is_critical_path"
  ],
  "fields": [
   {
@@ -211,25 +210,21 @@
    "label": "Branch & Property Identification"
   },
   {
-   "description": "Service Outlet Location ID of the branch as maintained in Finacle/CBS.",
-   "fieldname": "sol_id",
-   "fieldtype": "Data",
-   "label": "SOL ID",
-   "mandatory_depends_on": "eval:doc.is_rent==1"
-  },
-  {
    "description": "Administrative operating zone of the branch property.",
    "fieldname": "zone",
    "fieldtype": "Select",
    "label": "Zone",
-   "options": "\nZone -1\nZone -2\nZone -3\nZone -4\nZone -5\nZone -6"
+   "options": "\nZONE-1\nZONE-2\nZONE-3\nZONE-4\nZONE-5\nZONE-6\nZONE-7"
   },
   {
-   "description": "Name of the branch or office operating at this leased property.",
-   "fieldname": "branch_name",
-   "fieldtype": "Data",
-   "label": "Branch Name",
-   "mandatory_depends_on": "eval:doc.is_rent==1"
+   "description": "Select the branch Cost Center for rent accounting.",
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Branch (Cost Center)",
+   "mandatory_depends_on": "eval:doc.is_rent==1",
+   "options": "Cost Center"
   },
   {
    "fieldname": "cb_rent_prop_1",
@@ -519,7 +514,7 @@
  "index_web_pages_for_search": 1,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-21 12:07:41.515137",
+ "modified": "2026-11-21 14:44:01.717526",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",

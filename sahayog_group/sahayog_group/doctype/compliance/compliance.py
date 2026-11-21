@@ -437,3 +437,35 @@ def bulk_reassign_user_obligations(from_user, to_user, reason=None):
         "reassigned_assignments": len(assignment_rows),
         "reassigned_requests": len(requests_resp),
     }
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def cost_center_query(doctype, txt, searchfield, start, page_len, filters):
+	from frappe.query_builder import DocType
+	from frappe.query_builder.functions import Coalesce
+
+	CostCenter = DocType("Cost Center")
+	query = (
+		frappe.qb.from_(CostCenter)
+		.select(
+			CostCenter.name,
+			Coalesce(CostCenter.cost_center_name, "").as_("cost_center_name"),
+		)
+		.where(CostCenter.is_group == 0)
+	)
+
+	if txt:
+		query = query.where(
+			CostCenter.cost_center_name.like(f"%{txt}%")
+			| CostCenter.cost_center_number.like(f"%{txt}%")
+			| CostCenter.name.like(f"%{txt}%")
+		)
+
+	query = (
+		query.orderby(CostCenter.cost_center_number)
+		.orderby(CostCenter.cost_center_name)
+		.offset(start)
+		.limit(page_len)
+	)
+
+	return query.run(as_list=True)
