@@ -119,24 +119,6 @@ function load_requests_table(frm) {
 }
 
 
-// rent_landlord_input: Landlord PAN and Sahayog Savings A/c No accept only valid characters while typing
-function landlord_clean_pan(value) {
-	const text = String(value || "").toUpperCase();
-	let out = "";
-	for (const ch of text) {
-		const i = out.length;
-		if (i >= 10) break;
-		const letter = /[A-Z]/.test(ch);
-		const digit = /[0-9]/.test(ch);
-		if ((i < 5 && letter) || (i >= 5 && i < 9 && digit) || (i === 9 && letter)) out += ch;
-	}
-	return out;
-}
-
-function landlord_clean_account(value) {
-	return String(value || "").replace(/\D/g, "").slice(0, 15);
-}
-
 frappe.ui.form.on("Compliance", {
 	refresh(frm) {
 		const field = frm.fields_dict.landlords;
@@ -144,25 +126,15 @@ frappe.ui.form.on("Compliance", {
 		if (!grid) return;
 		grid.update_docfield_property("landlord_pan", "length", 10);
 		grid.update_docfield_property("sahayog_account_no", "length", 15);
-		if (grid._landlord_input_bound) return;
-		grid._landlord_input_bound = true;
-		grid.wrapper.on("input", 'input[data-fieldname="landlord_pan"]', function () {
-			const cleaned = landlord_clean_pan(this.value);
-			if (this.value !== cleaned) this.value = cleaned;
-		});
-		grid.wrapper.on("input", 'input[data-fieldname="sahayog_account_no"]', function () {
-			const cleaned = landlord_clean_account(this.value);
-			if (this.value !== cleaned) this.value = cleaned;
-		});
 	},
 });
 
 frappe.ui.form.on("Compliance Landlord Item", {
 	landlord_pan(frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
-		const cleaned = landlord_clean_pan(row.landlord_pan);
-		if (cleaned !== (row.landlord_pan || "")) frappe.model.set_value(cdt, cdn, "landlord_pan", cleaned);
-		if (cleaned && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(cleaned)) {
+		const pan = String(row.landlord_pan || "").toUpperCase();
+		if (pan !== (row.landlord_pan || "")) frappe.model.set_value(cdt, cdn, "landlord_pan", pan);
+		if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) {
 			frappe.show_alert({
 				message: __("Landlord PAN must be 10 characters: 5 letters, 4 digits, 1 letter (for example ABCDE1234F)."),
 				indicator: "red",
@@ -171,11 +143,10 @@ frappe.ui.form.on("Compliance Landlord Item", {
 	},
 	sahayog_account_no(frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
-		const cleaned = landlord_clean_account(row.sahayog_account_no);
-		if (cleaned !== (row.sahayog_account_no || "")) frappe.model.set_value(cdt, cdn, "sahayog_account_no", cleaned);
-		if (cleaned && cleaned.length !== 15) {
+		const value = String(row.sahayog_account_no || "");
+		if (value && value.length !== 15) {
 			frappe.show_alert({
-				message: __("Sahayog Savings A/c No must be exactly 15 digits (you entered {0}).", [cleaned.length]),
+				message: __("Sahayog Savings A/c No must be exactly 15 digits (you entered {0}).", [value.length]),
 				indicator: "red",
 			}, 7);
 		}

@@ -22,7 +22,7 @@ add_to_apps_screen = [
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/sahayog_group/css/sahayog_group.css"
-# app_include_js = "/assets/sahayog_group/js/sahayog_group.js"
+app_include_js = ["/assets/sahayog_group/js/field_validation.js?v=2"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/sahayog_group/css/sahayog_group.css"
@@ -290,6 +290,7 @@ has_permission = {
 }
 
 doc_events = {
+	"*": {"validate": "sahayog_group.sahayog_group.field_validation.validate_doc"},
 	"Compliance": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
 	"Compliance Department": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
 	"Compliance Project": {"on_update": "sahayog_group.sahayog_group.roles.sync_roles_for_doc"},
