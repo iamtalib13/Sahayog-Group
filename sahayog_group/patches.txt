@@ -9,3 +9,4 @@ sahayog_group.patches.seed_compliance_companies
 sahayog_group.patches.seed_evidence_types
 sahayog_group.patches.sync_compliance_sidebar_and_workspace
 sahayog_group.patches.sync_compliance_accounting_sidebar
+sahayog_group.patches.sync_compliance_cost_center_sidebar
