@@ -14,7 +14,9 @@
   "go_live_date",
   "planned_opening_date",
   "place",
-  "is_active"
+  "is_active",
+  "section_break_readiness",
+  "readiness_html"
  ],
  "fields": [
   {
@@ -80,6 +82,16 @@
    "fieldname": "project_description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "fieldname": "section_break_readiness",
+   "fieldtype": "Section Break",
+   "label": "Milestones & Critical Path Readiness"
+  },
+  {
+   "fieldname": "readiness_html",
+   "fieldtype": "HTML",
+   "label": "Readiness Overview"
   }
  ],
  "grid_page_length": 50,

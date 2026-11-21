@@ -27,13 +27,15 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Landlord Name",
-   "reqd": 1
+   "reqd": 1,
+   "description": "Full legal name of the landlord / property co-owner as per bank records & PAN."
   },
   {
    "fieldname": "landlord_pan",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Landlord PAN"
+   "label": "Landlord PAN",
+   "description": "10-digit Permanent Account Number (PAN) of the landlord for TDS reporting."
   },
   {
    "default": "100",
@@ -41,7 +43,8 @@
    "fieldtype": "Percent",
    "in_list_view": 1,
    "label": "Share Ratio (%)",
-   "reqd": 1
+   "reqd": 1,
+   "description": "Ownership / rent payout entitlement share percentage (total across all landlords must equal 100%)."
   },
   {
    "fieldname": "col_break_1",
@@ -54,31 +57,36 @@
    "in_list_view": 1,
    "label": "Payment Mode",
    "options": "Sahayog Savings Account\nExternal Bank - NEFT",
-   "reqd": 1
+   "reqd": 1,
+   "description": "Method of disbursement: Sahayog internal savings account or external bank NEFT."
   },
   {
    "depends_on": "eval:doc.payment_mode=='Sahayog Savings Account'",
    "fieldname": "sahayog_account_no",
    "fieldtype": "Data",
-   "label": "Sahayog Savings A/c No"
+   "label": "Sahayog Savings A/c No",
+   "description": "Landlords active savings account number maintained with Sahayog Society."
   },
   {
    "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
    "fieldname": "bank_name",
    "fieldtype": "Data",
-   "label": "Bank Name"
+   "label": "Bank Name",
+   "description": "Name of the external commercial bank where landlord maintains their account."
   },
   {
    "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
    "fieldname": "bank_account_no",
    "fieldtype": "Data",
-   "label": "Bank Account No"
+   "label": "Bank Account No",
+   "description": "External bank account number for NEFT / RTGS rent credit."
   },
   {
    "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
    "fieldname": "ifsc_code",
    "fieldtype": "Data",
-   "label": "IFSC Code"
+   "label": "IFSC Code",
+   "description": "11-character Indian Financial System Code (IFSC) of the beneficiary bank branch."
   },
   {
    "fieldname": "col_break_2",
@@ -88,26 +96,30 @@
    "default": "1",
    "fieldname": "tds_applicable",
    "fieldtype": "Check",
-   "label": "TDS Applicable"
+   "label": "TDS Applicable",
+   "description": "Check if Tax Deducted at Source (TDS) under Section 194-I is applicable (Mandatory if annual rent > \u20b950,000)."
   },
   {
    "default": "10",
    "depends_on": "eval:doc.tds_applicable==1",
    "fieldname": "tds_rate",
    "fieldtype": "Percent",
-   "label": "TDS Rate (%)"
+   "label": "TDS Rate (%)",
+   "description": "Applicable percentage rate of TDS deduction (Standard 10% for individuals/HUF)."
   },
   {
    "default": "0",
    "fieldname": "gst_applicable",
    "fieldtype": "Check",
-   "label": "GST Applicable"
+   "label": "GST Applicable",
+   "description": "Check if landlord is registered under GST and GST is charged on rent invoice."
   },
   {
    "depends_on": "eval:doc.gst_applicable==1",
    "fieldname": "landlord_gstin",
    "fieldtype": "Data",
-   "label": "Landlord GSTIN"
+   "label": "Landlord GSTIN",
+   "description": "15-character Goods and Services Tax Identification Number (GSTIN) of the landlord."
   }
  ],
  "grid_page_length": 50,

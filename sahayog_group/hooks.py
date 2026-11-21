@@ -157,6 +157,10 @@ scheduler_events = {
 		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.check_and_set_overdue",
 		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.send_compliance_alerts",
 		"sahayog_group.sahayog_group.doctype.compliance_request.compliance_request.escalate_unacknowledged_alerts",
+		"sahayog_group.sahayog_group.doctype.rent_payment_schedule.rent_payment_schedule.apply_auto_rent_increments",
+	],
+	"monthly": [
+		"sahayog_group.sahayog_group.doctype.rent_payment_schedule.rent_payment_schedule.generate_all_monthly_rent_schedules",
 	],
 }
 # old_scheduler = {
@@ -297,6 +301,7 @@ doc_events = {
 
 doctype_js = {
 	"Compliance Request": "public/js/compliance_request_brd.js",
+	"User": "public/js/user_compliance_reassign.js",
 }
 
 doctype_list_js = {

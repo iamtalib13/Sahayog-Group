@@ -26,11 +26,13 @@ class Compliance(Document):
         if not head:
             return
         self.department_head = head
+        full_name = frappe.db.get_value("User", head, "full_name") or head
         for row in self.get("assignments") or []:
             if row.role == "Department Head":
                 row.user = head
+                row.name1 = full_name
                 return
-        self.append("assignments", {"role": "Department Head", "user": head})
+        self.append("assignments", {"role": "Department Head", "user": head, "name1": full_name})
 
     def get_assignment_user(self, role):
         for row in self.get("assignments") or []:
@@ -321,3 +323,94 @@ def get_pending_requests_summary(compliance_names=None):
             })
 
     return summary
+
+
+@frappe.whitelist()
+def get_user_open_compliance_count(user):
+    """Get count of active assignments and open requests for a user."""
+    if not user:
+        return {"master_count": 0, "request_count": 0}
+    master_count = frappe.db.count("Compliance Assignment Item", {"user": user})
+    open_statuses = ["Draft", "Upcoming", "Action Required", "In Progress", "Application Submitted", "Awaiting Authority / Third Party", "Blocked / At Risk", "Completion Submitted", "Exception Requested", "Overdue"]
+    req_count = frappe.db.count("Compliance Request", {
+        "status": ["in", open_statuses],
+        "responsible_person": user
+    })
+    return {"master_count": master_count, "request_count": req_count}
+
+
+@frappe.whitelist()
+def bulk_reassign_user_obligations(from_user, to_user, reason=None):
+    """Bulk transfer all Compliance master assignments and open Requests from an exiting/inactive user to a new active user."""
+    from frappe.utils import escape_html
+
+    if not from_user or not to_user:
+        frappe.throw(_("Both From User and To User are required."))
+    if from_user == to_user:
+        frappe.throw(_("From User and To User cannot be the same."))
+    if not frappe.db.get_value("User", to_user, "enabled"):
+        frappe.throw(_("Destination user {0} is not active.").format(to_user))
+
+    to_user_name = frappe.db.get_value("User", to_user, "full_name") or to_user
+    reason = (reason or "Employee exit / inactivation reassignment").strip()
+
+    # 1. Update Compliance Assignment Item
+    assignment_rows = frappe.get_all(
+        "Compliance Assignment Item",
+        filters={"user": from_user},
+        fields=["name", "parent", "role"]
+    )
+    for row in assignment_rows:
+        frappe.db.set_value(
+            "Compliance Assignment Item",
+            row.name,
+            {"user": to_user, "name1": to_user_name},
+            update_modified=False
+        )
+
+    # Also update department_head in Compliance if from_user was department_head
+    for comp in frappe.get_all("Compliance", filters={"department_head": from_user}, pluck="name"):
+        frappe.db.set_value("Compliance", comp, "department_head", to_user, update_modified=False)
+
+    # 2. Update open Compliance Requests
+    open_statuses = [
+        "Draft", "Upcoming", "Action Required", "In Progress",
+        "Application Submitted", "Awaiting Authority / Third Party",
+        "Blocked / At Risk", "Completion Submitted", "Exception Requested", "Overdue"
+    ]
+    
+    # Update responsible_person
+    requests_resp = frappe.get_all(
+        "Compliance Request",
+        filters={"responsible_person": from_user, "status": ["in", open_statuses]},
+        pluck="name"
+    )
+    for r_name in requests_resp:
+        doc = frappe.get_doc("Compliance Request", r_name)
+        doc.responsible_person = to_user
+        doc.flags.ignore_permissions = True
+        doc.save()
+        doc.add_comment("Comment", f"Auto-reassigned from {from_user} to {to_user} on user exit. Reason: {escape_html(reason)}")
+
+    # Update backup_owner
+    requests_backup = frappe.get_all(
+        "Compliance Request",
+        filters={"backup_owner": from_user, "status": ["in", open_statuses]},
+        pluck="name"
+    )
+    for r_name in requests_backup:
+        frappe.db.set_value("Compliance Request", r_name, "backup_owner", to_user, update_modified=False)
+
+    # Update reviewer
+    requests_rev = frappe.get_all(
+        "Compliance Request",
+        filters={"reviewer": from_user, "status": ["in", open_statuses]},
+        pluck="name"
+    )
+    for r_name in requests_rev:
+        frappe.db.set_value("Compliance Request", r_name, "reviewer", to_user, update_modified=False)
+
+    return {
+        "reassigned_assignments": len(assignment_rows),
+        "reassigned_requests": len(requests_resp),
+    }

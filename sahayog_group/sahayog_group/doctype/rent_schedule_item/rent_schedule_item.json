@@ -1,0 +1,185 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-11-20 17:51:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "landlord_name",
+  "landlord_pan",
+  "share_ratio",
+  "col_break_1",
+  "payment_mode",
+  "sahayog_account_no",
+  "bank_name",
+  "bank_account_no",
+  "ifsc_code",
+  "sec_calc",
+  "gross_rent",
+  "tds_applicable",
+  "tds_rate",
+  "tds_amount",
+  "col_break_2",
+  "gst_applicable",
+  "landlord_gstin",
+  "gst_amount",
+  "net_payable",
+  "sec_inv",
+  "invoice_number",
+  "invoice_date",
+  "invoice_amount",
+  "col_break_3",
+  "invoice_file",
+  "invoice_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "landlord_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Landlord Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "landlord_pan",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Landlord PAN"
+  },
+  {
+   "fieldname": "share_ratio",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Share Ratio (%)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Payment Mode",
+   "options": "Sahayog Savings Account\nExternal Bank - NEFT"
+  },
+  {
+   "fieldname": "sahayog_account_no",
+   "fieldtype": "Data",
+   "label": "Sahayog Savings A/c No"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "bank_account_no",
+   "fieldtype": "Data",
+   "label": "Bank Account No"
+  },
+  {
+   "fieldname": "ifsc_code",
+   "fieldtype": "Data",
+   "label": "IFSC Code"
+  },
+  {
+   "fieldname": "sec_calc",
+   "fieldtype": "Section Break",
+   "label": "Rent & Tax Calculation"
+  },
+  {
+   "fieldname": "gross_rent",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Gross Rent"
+  },
+  {
+   "default": "0",
+   "fieldname": "tds_applicable",
+   "fieldtype": "Check",
+   "label": "TDS Applicable"
+  },
+  {
+   "fieldname": "tds_rate",
+   "fieldtype": "Percent",
+   "label": "TDS Rate (%)"
+  },
+  {
+   "fieldname": "tds_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "TDS Amount"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "gst_applicable",
+   "fieldtype": "Check",
+   "label": "GST Applicable"
+  },
+  {
+   "fieldname": "landlord_gstin",
+   "fieldtype": "Data",
+   "label": "Landlord GSTIN"
+  },
+  {
+   "fieldname": "gst_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "GST Amount"
+  },
+  {
+   "fieldname": "net_payable",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Net Payable"
+  },
+  {
+   "fieldname": "sec_inv",
+   "fieldtype": "Section Break",
+   "label": "Admin Invoice Upload"
+  },
+  {
+   "fieldname": "invoice_number",
+   "fieldtype": "Data",
+   "label": "Invoice Number"
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "label": "Invoice Date"
+  },
+  {
+   "fieldname": "invoice_amount",
+   "fieldtype": "Currency",
+   "label": "Invoice Amount"
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invoice_file",
+   "fieldtype": "Attach",
+   "label": "Invoice Attachment"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "invoice_status",
+   "fieldtype": "Select",
+   "label": "Invoice Status",
+   "options": "Pending\nUploaded\nVerified\nRejected"
+  }
+ ],
+ "istable": 1,
+ "module": "Sahayog Group",
+ "name": "Rent Schedule Item",
+ "owner": "Administrator",
+ "permissions": []
+}

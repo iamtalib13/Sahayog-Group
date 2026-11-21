@@ -45,6 +45,13 @@ frappe.ui.form.on("Compliance Request", {
 			if (["Draft", "Upcoming", "Action Required"].includes(s)) simple("Start Work", true);
 			if (s === "In Progress") simple("Submit Application");
 			if (s === "Application Submitted") simple("Mark Awaiting Authority");
+			if (working.includes(s) || ["Blocked / At Risk", "Overdue", "Upcoming", "Action Required"].includes(s)) {
+				asking("Request Exception", [
+					{ fieldname: "reason", fieldtype: "Small Text", label: __("Exception Justification / Reason"), reqd: 1 },
+					{ fieldname: "revised_date", fieldtype: "Date", label: __("Revised Extension Date"), reqd: 1 },
+					{ fieldname: "exception_attachment", fieldtype: "Attach", label: __("Authority Communication / Proof") },
+				]);
+			}
 			if (working.includes(s)) {
 				simple("Request Closure", s !== "Application Submitted" && s !== "In Progress" ? true : false);
 				asking("Mark Blocked", [
@@ -58,6 +65,12 @@ frappe.ui.form.on("Compliance Request", {
 		if (is_reviewer && s === "Completion Submitted") {
 			add("Approve", () => frappe.confirm(__("Are you sure you want to approve this record?"), () => call("run_action", { action: "Approve" })), true);
 			asking("Reject", [{ fieldname: "reason", fieldtype: "Small Text", label: __("Rejection Reason"), reqd: 1 }]);
+		}
+
+		const is_admin = frappe.user_roles.includes("Compliance Master Admin") || frappe.user_roles.includes("System Manager");
+		if ((is_manager || is_admin || d.unit_head === user) && s === "Exception Requested") {
+			add("Approve Exception", () => frappe.confirm(__("Are you sure you want to approve this exception and extend the deadline?"), () => call("run_action", { action: "Approve Exception" })), true);
+			asking("Reject Exception", [{ fieldname: "reason", fieldtype: "Small Text", label: __("Rejection Reason"), reqd: 1 }]);
 		}
 
 		if (is_manager && s === "Closed / Completed") {

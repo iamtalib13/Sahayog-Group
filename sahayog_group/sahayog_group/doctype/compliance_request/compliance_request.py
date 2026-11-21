@@ -311,6 +311,9 @@ ACTIONS = {
     "Approve": {"from": [SUBMITTED], "to": COMPLETED, "by": "reviewer"},
     "Reject": {"from": [SUBMITTED], "to": SUBMITTED, "by": "reviewer"},
     "Reopen": {"from": [COMPLETED], "to": "In Progress", "by": "manager"},
+    "Request Exception": {"from": WORKING + ["Blocked / At Risk", "Overdue", "Upcoming", "Action Required"], "to": "Exception Requested", "by": "owner"},
+    "Approve Exception": {"from": ["Exception Requested"], "to": "Exception Approved", "by": "manager"},
+    "Reject Exception": {"from": ["Exception Requested"], "to": "In Progress", "by": "manager"},
 }
 
 
@@ -319,7 +322,7 @@ def _clean(value):
 
 
 @frappe.whitelist()
-def run_action(name, action, reason=None, blocker=None, next_action=None):
+def run_action(name, action, reason=None, blocker=None, next_action=None, revised_date=None, exception_attachment=None):
     from frappe.utils import escape_html
 
     rule = ACTIONS.get(action)
@@ -334,9 +337,11 @@ def run_action(name, action, reason=None, blocker=None, next_action=None):
     allowed = {
         "owner": [doc.responsible_person, doc.backup_owner],
         "reviewer": [doc.reviewer],
-        "manager": [doc.reviewer, doc.department_head],
+        "manager": [doc.reviewer, doc.department_head, doc.unit_head, "Administrator"],
     }[rule["by"]]
-    if frappe.session.user not in [u for u in allowed if u]:
+    user_roles = frappe.get_roles()
+    is_admin = "Compliance Master Admin" in user_roles or "System Manager" in user_roles
+    if frappe.session.user not in [u for u in allowed if u] and not (is_admin and rule["by"] == "manager"):
         frappe.throw(_("You are not allowed to do '{0}' on this record.").format(action))
 
     reason = _clean(reason)
@@ -348,6 +353,23 @@ def run_action(name, action, reason=None, blocker=None, next_action=None):
             frappe.throw(_("Blocker and Next Action are required."))
         doc.blocker = _clean(blocker)
         doc.next_action = _clean(next_action)
+    elif action == "Request Exception":
+        if not reason:
+            frappe.throw(_("Exception reason / justification is required."))
+        if not revised_date:
+            frappe.throw(_("Revised Extension Date is required for an Exception."))
+        doc.exception_reason = reason
+        doc.revised_target_date = revised_date
+        if exception_attachment:
+            doc.exception_attachment = exception_attachment
+    elif action == "Approve Exception":
+        doc.exception_approved_by = frappe.session.user
+        if doc.revised_target_date:
+            doc.due_date = doc.revised_target_date
+    elif action == "Reject Exception":
+        if not reason:
+            frappe.throw(_("Rejection reason is required."))
+        doc.rejection_reason = reason
     elif action == "Approve":
         doc.reviewer_decision = "Approved"
     elif action == "Reject":
@@ -364,6 +386,8 @@ def run_action(name, action, reason=None, blocker=None, next_action=None):
     text = action + (": " + escape_html(reason) if reason else "")
     if action == "Mark Blocked":
         text += ": " + escape_html(doc.blocker)
+    elif action == "Request Exception":
+        text += f" (Target: {doc.revised_target_date})"
     doc.add_comment("Comment", text)
     return doc.status
 

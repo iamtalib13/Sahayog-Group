@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "details_tab",
+  "is_rent",
   "compliance_details_section",
   "compliance_name",
   "category",
@@ -21,7 +22,8 @@
   "is_active",
   "is_project_based",
   "project",
-  "is_rent",
+  "predecessor",
+  "is_critical_path",
   "description_section",
   "description",
   "cb_desc_1",
@@ -175,7 +177,8 @@
    "default": "0",
    "fieldname": "is_rent",
    "fieldtype": "Check",
-   "label": "Is Rent & Lease"
+   "label": "Is Rent & Lease",
+   "description": "Check if this compliance is for a branch property rent or lease agreement."
   },
   {
    "fieldname": "description_section",
@@ -211,18 +214,21 @@
    "fieldname": "sol_id",
    "fieldtype": "Data",
    "label": "SOL ID",
-   "mandatory_depends_on": "eval:doc.is_rent==1"
+   "mandatory_depends_on": "eval:doc.is_rent==1",
+   "description": "Service Outlet Location ID of the branch as maintained in Finacle/CBS."
   },
   {
    "fieldname": "zone",
    "fieldtype": "Data",
-   "label": "Zone"
+   "label": "Zone",
+   "description": "Administrative operating zone of the branch property."
   },
   {
    "fieldname": "branch_name",
    "fieldtype": "Data",
    "label": "Branch Name",
-   "mandatory_depends_on": "eval:doc.is_rent==1"
+   "mandatory_depends_on": "eval:doc.is_rent==1",
+   "description": "Name of the branch or office operating at this leased property."
   },
   {
    "fieldname": "cb_rent_prop_1",
@@ -233,24 +239,28 @@
    "fieldname": "type_of_agreement",
    "fieldtype": "Select",
    "label": "Type of Agreement",
-   "options": "Commercial\nResidential\nOther"
+   "options": "Commercial\nResidential\nOther",
+   "description": "Classification of lease (e.g. Registered Lease Deed, Notarised Agreement, Leave & License)."
   },
   {
    "default": "Operational",
    "fieldname": "working_status",
    "fieldtype": "Select",
    "label": "Working Status",
-   "options": "Operational\nUnder Fit-out\nVacating"
+   "options": "Operational\nUnder Fit-out\nVacating",
+   "description": "Operational working status of the branch at this premises (e.g. Working, Under Renovation, Relocated)."
   },
   {
    "fieldname": "area_sq_ft",
    "fieldtype": "Float",
-   "label": "Area (Sq Ft)"
+   "label": "Area (Sq Ft)",
+   "description": "Total carpet or super built-up area of the leased property in square feet."
   },
   {
    "fieldname": "property_address",
    "fieldtype": "Small Text",
-   "label": "Property Address"
+   "label": "Property Address",
+   "description": "Complete physical address of the leased branch premises."
   },
   {
    "fieldname": "tenure_notice_section",
@@ -260,12 +270,14 @@
   {
    "fieldname": "lock_in_period_months",
    "fieldtype": "Int",
-   "label": "Lock-in Period (Months)"
+   "label": "Lock-in Period (Months)",
+   "description": "Contractual lock-in duration in months during which neither party can terminate without penalty."
   },
   {
    "fieldname": "lock_in_end_date",
    "fieldtype": "Date",
-   "label": "Lock-in End Date"
+   "label": "Lock-in End Date",
+   "description": "Date when the lock-in commitment expires as per the rent agreement."
   },
   {
    "fieldname": "cb_rent_tenure_1",
@@ -274,12 +286,14 @@
   {
    "fieldname": "vacation_notice_months",
    "fieldtype": "Int",
-   "label": "Vacation Notice (Months)"
+   "label": "Vacation Notice (Months)",
+   "description": "Prior notice period in months required to vacate the premises."
   },
   {
    "fieldname": "renewal_notice_months",
    "fieldtype": "Int",
-   "label": "Renewal Notice (Months)"
+   "label": "Renewal Notice (Months)",
+   "description": "Advance notice period in months required prior to lease expiry for renegotiation or renewal."
   },
   {
    "fieldname": "financial_escalation_section",
@@ -290,12 +304,14 @@
    "fieldname": "monthly_rent",
    "fieldtype": "Currency",
    "label": "Monthly Rent as per Agreement",
-   "mandatory_depends_on": "eval:doc.is_rent==1"
+   "mandatory_depends_on": "eval:doc.is_rent==1",
+   "description": "Total monthly base rent payable for the property as stipulated in the agreement."
   },
   {
    "fieldname": "security_deposit",
    "fieldtype": "Currency",
-   "label": "Security Deposit"
+   "label": "Security Deposit",
+   "description": "Total refundable interest-free security deposit paid to the landlords."
   },
   {
    "fieldname": "cb_rent_fin_1",
@@ -304,19 +320,22 @@
   {
    "fieldname": "increment_percentage",
    "fieldtype": "Percent",
-   "label": "Increment Percentage (%)"
+   "label": "Increment Percentage (%)",
+   "description": "Contractual rent escalation rate in percentage (e.g. 5%, 10%, 15%)."
   },
   {
    "default": "Annual",
    "fieldname": "increment_frequency",
    "fieldtype": "Select",
    "label": "Increment Frequency",
-   "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years"
+   "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years",
+   "description": "Interval at which rent escalation occurs (e.g. Every 11 Months, Annual, Every 3 Years)."
   },
   {
    "fieldname": "next_increment_date",
    "fieldtype": "Date",
-   "label": "Next Increment Date"
+   "label": "Next Increment Date",
+   "description": "Upcoming effective date when the next contractual rent increment becomes applicable."
   },
   {
    "fieldname": "landlords_section",
@@ -327,7 +346,8 @@
    "fieldname": "landlords",
    "fieldtype": "Table",
    "label": "Landlords",
-   "options": "Compliance Landlord Item"
+   "options": "Compliance Landlord Item",
+   "description": "List of co-owners / landlords, their payment mode, bank accounts, tax treatment, and rent allocation ratio (must total 100%)."
   },
   {
    "fieldname": "schedule_tab",
@@ -478,13 +498,27 @@
    "fieldname": "html_filg",
    "fieldtype": "HTML",
    "label": "Linked Requests"
+  },
+  {
+   "fieldname": "predecessor",
+   "fieldtype": "Link",
+   "label": "Predecessor Compliance",
+   "options": "Compliance",
+   "depends_on": "eval:doc.is_project_based==1"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_critical_path",
+   "fieldtype": "Check",
+   "label": "Is Critical Path (Go-Live Blocker)",
+   "depends_on": "eval:doc.is_project_based==1"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-20 13:28:27.147014",
+ "modified": "2026-11-20 16:38:03.288469",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",

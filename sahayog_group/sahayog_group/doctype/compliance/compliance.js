@@ -43,13 +43,17 @@ function fill_department_head(frm) {
 	frappe.db.get_value("Compliance Department", frm.doc.department, "department_head").then((r) => {
 		const head = r && r.message && r.message.department_head;
 		if (!head) return;
-		const row = (frm.doc.assignments || []).find((x) => x.role === "Department Head");
-		if (row) {
-			frappe.model.set_value(row.doctype, row.name, "user", head);
-		} else {
-			frm.add_child("assignments", { role: "Department Head", user: head });
-		}
-		frm.refresh_field("assignments");
+		frappe.db.get_value("User", head, "full_name").then((res) => {
+			const fullName = (res && res.message && res.message.full_name) || head;
+			const row = (frm.doc.assignments || []).find((x) => x.role === "Department Head");
+			if (row) {
+				frappe.model.set_value(row.doctype, row.name, "user", head);
+				frappe.model.set_value(row.doctype, row.name, "name1", fullName);
+			} else {
+				frm.add_child("assignments", { role: "Department Head", user: head, name1: fullName });
+			}
+			frm.refresh_field("assignments");
+		});
 	});
 }
 

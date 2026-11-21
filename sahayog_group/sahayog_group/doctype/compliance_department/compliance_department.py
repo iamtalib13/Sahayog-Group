@@ -12,6 +12,7 @@ class ComplianceDepartment(Document):
 		if not before or before.department_head == self.department_head:
 			return
 		head = self.department_head
+		full_name = frappe.db.get_value("User", head, "full_name") or head
 		for name in frappe.get_all("Compliance", filters={"department": self.name}, pluck="name"):
 			frappe.db.set_value("Compliance", name, "department_head", head, update_modified=False)
 			rows = frappe.get_all(
@@ -21,10 +22,10 @@ class ComplianceDepartment(Document):
 			)
 			if rows:
 				for row in rows:
-					frappe.db.set_value("Compliance Assignment Item", row, "user", head, update_modified=False)
+					frappe.db.set_value("Compliance Assignment Item", row, {"user": head, "name1": full_name}, update_modified=False)
 			else:
 				doc = frappe.get_doc("Compliance", name)
-				doc.append("assignments", {"role": "Department Head", "user": head})
+				doc.append("assignments", {"role": "Department Head", "user": head, "name1": full_name})
 				doc.flags.ignore_validate = True
 				doc.save(ignore_permissions=True)
 		for name in frappe.get_all(
