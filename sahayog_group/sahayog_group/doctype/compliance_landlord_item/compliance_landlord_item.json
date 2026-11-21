@@ -65,28 +65,32 @@
    "fieldname": "sahayog_account_no",
    "fieldtype": "Data",
    "label": "Sahayog Savings A/c No",
-   "description": "Landlords active savings account number maintained with Sahayog Society."
+   "description": "Landlords active savings account number maintained with Sahayog Society.",
+   "mandatory_depends_on": "eval:doc.payment_mode=='Sahayog Savings Account'"
   },
   {
    "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
    "fieldname": "bank_name",
    "fieldtype": "Data",
    "label": "Bank Name",
-   "description": "Name of the external commercial bank where landlord maintains their account."
+   "description": "Name of the external commercial bank where landlord maintains their account.",
+   "mandatory_depends_on": "eval:doc.payment_mode=='External Bank - NEFT'"
   },
   {
    "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
    "fieldname": "bank_account_no",
    "fieldtype": "Data",
    "label": "Bank Account No",
-   "description": "External bank account number for NEFT / RTGS rent credit."
+   "description": "External bank account number for NEFT / RTGS rent credit.",
+   "mandatory_depends_on": "eval:doc.payment_mode=='External Bank - NEFT'"
   },
   {
    "depends_on": "eval:doc.payment_mode=='External Bank - NEFT'",
    "fieldname": "ifsc_code",
    "fieldtype": "Data",
    "label": "IFSC Code",
-   "description": "11-character Indian Financial System Code (IFSC) of the beneficiary bank branch."
+   "description": "11-character Indian Financial System Code (IFSC) of the beneficiary bank branch.",
+   "mandatory_depends_on": "eval:doc.payment_mode=='External Bank - NEFT'"
   },
   {
    "fieldname": "col_break_2",
@@ -97,7 +101,7 @@
    "fieldname": "tds_applicable",
    "fieldtype": "Check",
    "label": "TDS Applicable",
-   "description": "Check if Tax Deducted at Source (TDS) under Section 194-I is applicable (Mandatory if annual rent > \u20b950,000)."
+   "description": "Check if Tax Deducted at Source (TDS) under Section 194-I is applicable (Mandatory if annual rent > ₹50,000)."
   },
   {
    "default": "10",
@@ -125,7 +129,7 @@
  "grid_page_length": 50,
  "istable": 1,
  "links": [],
- "modified": "2026-11-20 12:24:00.000000",
+ "modified": "2026-11-21 12:19:52.883341",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance Landlord Item",

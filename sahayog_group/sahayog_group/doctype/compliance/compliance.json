@@ -3,7 +3,7 @@
  "allow_bulk_edit": 1,
  "allow_rename": 1,
  "autoname": "COMP-.YYYY.-.#####",
- "creation": "2026-10-19 16:01:48.739832",
+ "creation": "2026-11-20 17:46:02.507904",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -175,10 +175,10 @@
   },
   {
    "default": "0",
+   "description": "Check if this compliance is for a branch property rent or lease agreement.",
    "fieldname": "is_rent",
    "fieldtype": "Check",
-   "label": "Is Rent & Lease",
-   "description": "Check if this compliance is for a branch property rent or lease agreement."
+   "label": "Is Rent & Lease"
   },
   {
    "fieldname": "description_section",
@@ -211,24 +211,25 @@
    "label": "Branch & Property Identification"
   },
   {
+   "description": "Service Outlet Location ID of the branch as maintained in Finacle/CBS.",
    "fieldname": "sol_id",
    "fieldtype": "Data",
    "label": "SOL ID",
-   "mandatory_depends_on": "eval:doc.is_rent==1",
-   "description": "Service Outlet Location ID of the branch as maintained in Finacle/CBS."
+   "mandatory_depends_on": "eval:doc.is_rent==1"
   },
   {
+   "description": "Administrative operating zone of the branch property.",
    "fieldname": "zone",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Zone",
-   "description": "Administrative operating zone of the branch property."
+   "options": "\nZone -1\nZone -2\nZone -3\nZone -4\nZone -5\nZone -6"
   },
   {
+   "description": "Name of the branch or office operating at this leased property.",
    "fieldname": "branch_name",
    "fieldtype": "Data",
    "label": "Branch Name",
-   "mandatory_depends_on": "eval:doc.is_rent==1",
-   "description": "Name of the branch or office operating at this leased property."
+   "mandatory_depends_on": "eval:doc.is_rent==1"
   },
   {
    "fieldname": "cb_rent_prop_1",
@@ -236,31 +237,31 @@
   },
   {
    "default": "Commercial",
+   "description": "Classification of lease (e.g. Registered Lease Deed, Notarised Agreement, Leave & License).",
    "fieldname": "type_of_agreement",
    "fieldtype": "Select",
    "label": "Type of Agreement",
-   "options": "Commercial\nResidential\nOther",
-   "description": "Classification of lease (e.g. Registered Lease Deed, Notarised Agreement, Leave & License)."
+   "options": "Commercial\nResidential\nOther"
   },
   {
    "default": "Operational",
+   "description": "Operational working status of the branch at this premises (e.g. Working, Under Renovation, Relocated).",
    "fieldname": "working_status",
    "fieldtype": "Select",
    "label": "Working Status",
-   "options": "Operational\nUnder Fit-out\nVacating",
-   "description": "Operational working status of the branch at this premises (e.g. Working, Under Renovation, Relocated)."
+   "options": "Operational\nUnder Fit-out\nVacating"
   },
   {
+   "description": "Total carpet or super built-up area of the leased property in square feet.",
    "fieldname": "area_sq_ft",
    "fieldtype": "Float",
-   "label": "Area (Sq Ft)",
-   "description": "Total carpet or super built-up area of the leased property in square feet."
+   "label": "Area (Sq Ft)"
   },
   {
+   "description": "Complete physical address of the leased branch premises.",
    "fieldname": "property_address",
    "fieldtype": "Small Text",
-   "label": "Property Address",
-   "description": "Complete physical address of the leased branch premises."
+   "label": "Property Address"
   },
   {
    "fieldname": "tenure_notice_section",
@@ -268,32 +269,32 @@
    "label": "Tenure & Notice Terms"
   },
   {
+   "description": "Contractual lock-in duration in months during which neither party can terminate without penalty.",
    "fieldname": "lock_in_period_months",
    "fieldtype": "Int",
-   "label": "Lock-in Period (Months)",
-   "description": "Contractual lock-in duration in months during which neither party can terminate without penalty."
+   "label": "Lock-in Period (Months)"
   },
   {
+   "description": "Date when the lock-in commitment expires as per the rent agreement.",
    "fieldname": "lock_in_end_date",
    "fieldtype": "Date",
-   "label": "Lock-in End Date",
-   "description": "Date when the lock-in commitment expires as per the rent agreement."
+   "label": "Lock-in End Date"
   },
   {
    "fieldname": "cb_rent_tenure_1",
    "fieldtype": "Column Break"
   },
   {
+   "description": "Prior notice period in months required to vacate the premises.",
    "fieldname": "vacation_notice_months",
    "fieldtype": "Int",
-   "label": "Vacation Notice (Months)",
-   "description": "Prior notice period in months required to vacate the premises."
+   "label": "Vacation Notice (Months)"
   },
   {
+   "description": "Advance notice period in months required prior to lease expiry for renegotiation or renewal.",
    "fieldname": "renewal_notice_months",
    "fieldtype": "Int",
-   "label": "Renewal Notice (Months)",
-   "description": "Advance notice period in months required prior to lease expiry for renegotiation or renewal."
+   "label": "Renewal Notice (Months)"
   },
   {
    "fieldname": "financial_escalation_section",
@@ -301,41 +302,41 @@
    "label": "Financial & Escalation Terms"
   },
   {
+   "description": "Total monthly base rent payable for the property as stipulated in the agreement.",
    "fieldname": "monthly_rent",
    "fieldtype": "Currency",
    "label": "Monthly Rent as per Agreement",
-   "mandatory_depends_on": "eval:doc.is_rent==1",
-   "description": "Total monthly base rent payable for the property as stipulated in the agreement."
+   "mandatory_depends_on": "eval:doc.is_rent==1"
   },
   {
+   "description": "Total refundable interest-free security deposit paid to the landlords.",
    "fieldname": "security_deposit",
    "fieldtype": "Currency",
-   "label": "Security Deposit",
-   "description": "Total refundable interest-free security deposit paid to the landlords."
+   "label": "Security Deposit"
   },
   {
    "fieldname": "cb_rent_fin_1",
    "fieldtype": "Column Break"
   },
   {
+   "description": "Contractual rent escalation rate in percentage (e.g. 5%, 10%, 15%).",
    "fieldname": "increment_percentage",
    "fieldtype": "Percent",
-   "label": "Increment Percentage (%)",
-   "description": "Contractual rent escalation rate in percentage (e.g. 5%, 10%, 15%)."
+   "label": "Increment Percentage (%)"
   },
   {
    "default": "Annual",
+   "description": "Interval at which rent escalation occurs (e.g. Every 11 Months, Annual, Every 3 Years).",
    "fieldname": "increment_frequency",
    "fieldtype": "Select",
    "label": "Increment Frequency",
-   "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years",
-   "description": "Interval at which rent escalation occurs (e.g. Every 11 Months, Annual, Every 3 Years)."
+   "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years"
   },
   {
+   "description": "Upcoming effective date when the next contractual rent increment becomes applicable.",
    "fieldname": "next_increment_date",
    "fieldtype": "Date",
-   "label": "Next Increment Date",
-   "description": "Upcoming effective date when the next contractual rent increment becomes applicable."
+   "label": "Next Increment Date"
   },
   {
    "fieldname": "landlords_section",
@@ -343,16 +344,16 @@
    "label": "Landlords & Payment Allocation"
   },
   {
+   "description": "List of co-owners / landlords, their payment mode, bank accounts, tax treatment, and rent allocation ratio (must total 100%).",
    "fieldname": "landlords",
    "fieldtype": "Table",
    "label": "Landlords",
-   "options": "Compliance Landlord Item",
-   "description": "List of co-owners / landlords, their payment mode, bank accounts, tax treatment, and rent allocation ratio (must total 100%)."
+   "options": "Compliance Landlord Item"
   },
   {
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
-   "label": "Schedule & Risk"
+   "label": "Schedule"
   },
   {
    "fieldname": "schedule_section",
@@ -500,25 +501,25 @@
    "label": "Linked Requests"
   },
   {
+   "depends_on": "eval:doc.is_project_based==1",
    "fieldname": "predecessor",
    "fieldtype": "Link",
    "label": "Predecessor Compliance",
-   "options": "Compliance",
-   "depends_on": "eval:doc.is_project_based==1"
+   "options": "Compliance"
   },
   {
    "default": "0",
+   "depends_on": "eval:doc.is_project_based==1",
    "fieldname": "is_critical_path",
    "fieldtype": "Check",
-   "label": "Is Critical Path (Go-Live Blocker)",
-   "depends_on": "eval:doc.is_project_based==1"
+   "label": "Is Critical Path (Go-Live Blocker)"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-20 16:38:03.288469",
+ "modified": "2026-11-21 12:07:41.515137",
  "modified_by": "Administrator",
  "module": "Sahayog Group",
  "name": "Compliance",

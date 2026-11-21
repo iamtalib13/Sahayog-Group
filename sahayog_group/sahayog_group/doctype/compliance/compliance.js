@@ -24,6 +24,56 @@ frappe.ui.form.on("Compliance", {
 	},
 });
 
+frappe.ui.form.on("Compliance Landlord Item", {
+	landlords_add(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		const other_total = (frm.doc.landlords || [])
+			.filter((r) => r.name !== row.name)
+			.reduce((acc, r) => acc + flt(r.share_ratio), 0);
+		const remaining = Math.max(0, 100 - other_total);
+		frappe.model.set_value(cdt, cdn, "share_ratio", remaining);
+	},
+	share_ratio(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		const current_val = flt(row.share_ratio);
+		const other_total = (frm.doc.landlords || [])
+			.filter((r) => r.name !== row.name)
+			.reduce((acc, r) => acc + flt(r.share_ratio), 0);
+		const max_allowed = Math.max(0, 100 - other_total);
+
+		if (current_val > max_allowed) {
+			frappe.msgprint({
+				message: __("Share ratio cannot exceed remaining limit of {0}%. Value reset to {0}%.", [max_allowed]),
+				indicator: "orange",
+				title: __("Share Ratio Limit Exceeded"),
+			});
+			frappe.model.set_value(cdt, cdn, "share_ratio", max_allowed);
+		} else if (current_val < 0) {
+			frappe.msgprint({
+				message: __("Share ratio cannot be negative."),
+				indicator: "red",
+				title: __("Invalid Share Ratio"),
+			});
+			frappe.model.set_value(cdt, cdn, "share_ratio", 0);
+		}
+	},
+	landlord_pan(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		if (!row.landlord_pan) return;
+		const pan = row.landlord_pan.trim().toUpperCase();
+		frappe.model.set_value(cdt, cdn, "landlord_pan", pan);
+
+		const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+		if (!panRegex.test(pan)) {
+			frappe.msgprint({
+				message: __("Invalid Landlord PAN '{0}'. Format must be 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F).", [pan]),
+				indicator: "red",
+				title: __("Invalid PAN"),
+			});
+		}
+	},
+});
+
 function set_category_indicator(frm) {
 	if (frm.doc.category) {
 		frm.page.set_indicator(frm.doc.category, "blue");
@@ -67,3 +117,67 @@ function load_requests_table(frm) {
 		},
 	});
 }
+
+
+// rent_landlord_input: Landlord PAN and Sahayog Savings A/c No accept only valid characters while typing
+function landlord_clean_pan(value) {
+	const text = String(value || "").toUpperCase();
+	let out = "";
+	for (const ch of text) {
+		const i = out.length;
+		if (i >= 10) break;
+		const letter = /[A-Z]/.test(ch);
+		const digit = /[0-9]/.test(ch);
+		if ((i < 5 && letter) || (i >= 5 && i < 9 && digit) || (i === 9 && letter)) out += ch;
+	}
+	return out;
+}
+
+function landlord_clean_account(value) {
+	return String(value || "").replace(/\D/g, "").slice(0, 15);
+}
+
+frappe.ui.form.on("Compliance", {
+	refresh(frm) {
+		const field = frm.fields_dict.landlords;
+		const grid = field && field.grid;
+		if (!grid) return;
+		grid.update_docfield_property("landlord_pan", "length", 10);
+		grid.update_docfield_property("sahayog_account_no", "length", 15);
+		if (grid._landlord_input_bound) return;
+		grid._landlord_input_bound = true;
+		grid.wrapper.on("input", 'input[data-fieldname="landlord_pan"]', function () {
+			const cleaned = landlord_clean_pan(this.value);
+			if (this.value !== cleaned) this.value = cleaned;
+		});
+		grid.wrapper.on("input", 'input[data-fieldname="sahayog_account_no"]', function () {
+			const cleaned = landlord_clean_account(this.value);
+			if (this.value !== cleaned) this.value = cleaned;
+		});
+	},
+});
+
+frappe.ui.form.on("Compliance Landlord Item", {
+	landlord_pan(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		const cleaned = landlord_clean_pan(row.landlord_pan);
+		if (cleaned !== (row.landlord_pan || "")) frappe.model.set_value(cdt, cdn, "landlord_pan", cleaned);
+		if (cleaned && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(cleaned)) {
+			frappe.show_alert({
+				message: __("Landlord PAN must be 10 characters: 5 letters, 4 digits, 1 letter (for example ABCDE1234F)."),
+				indicator: "red",
+			}, 7);
+		}
+	},
+	sahayog_account_no(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+		const cleaned = landlord_clean_account(row.sahayog_account_no);
+		if (cleaned !== (row.sahayog_account_no || "")) frappe.model.set_value(cdt, cdn, "sahayog_account_no", cleaned);
+		if (cleaned && cleaned.length !== 15) {
+			frappe.show_alert({
+				message: __("Sahayog Savings A/c No must be exactly 15 digits (you entered {0}).", [cleaned.length]),
+				indicator: "red",
+			}, 7);
+		}
+	},
+});

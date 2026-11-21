@@ -16,6 +16,8 @@ class Compliance(Document):
         self.validate_duplicate()
         self.validate_maker_checker()
         self.validate_rent_details()
+        from sahayog_group.sahayog_group.rent_landlord_validation import validate_landlords
+        validate_landlords(self)
 
 
     def fill_department_head(self):
@@ -84,10 +86,31 @@ class Compliance(Document):
         
         landlords = self.get("landlords") or []
         if landlords:
-            total_ratio = sum(float(l.share_ratio or 0) for l in landlords)
+            import re
+            pan_pattern = re.compile(r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$")
+            total_ratio = 0.0
+
+            for idx, l in enumerate(landlords, 1):
+                ratio = float(l.share_ratio or 0)
+                if ratio < 0:
+                    frappe.throw(
+                        _("Row #{0}: Share Ratio cannot be negative.").format(idx),
+                        title=_("Invalid Share Ratio")
+                    )
+                total_ratio += ratio
+
+                if l.landlord_pan:
+                    pan_upper = l.landlord_pan.strip().upper()
+                    l.landlord_pan = pan_upper
+                    if not pan_pattern.match(pan_upper):
+                        frappe.throw(
+                            _("Row #{0}: Invalid Landlord PAN '{1}'. PAN format must be 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F).").format(idx, pan_upper),
+                            title=_("Invalid Landlord PAN")
+                        )
+
             if round(total_ratio, 2) != 100.0:
                 frappe.throw(
-                    _("Total Landlord Share Ratio must be exactly 100%. Current total: {0}%").format(total_ratio),
+                    _("Total Landlord Share Ratio must be exactly 100%. Current total: {0}%").format(round(total_ratio, 2)),
                     title=_("Invalid Share Ratio")
                 )
 
