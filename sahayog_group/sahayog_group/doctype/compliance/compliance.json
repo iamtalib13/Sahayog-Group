@@ -83,12 +83,14 @@
   {
    "fieldname": "details_tab",
    "fieldtype": "Tab Break",
-   "label": "Details"
+   "label": "Details",
+   "idx": 1
   },
   {
    "fieldname": "compliance_details_section",
    "fieldtype": "Section Break",
-   "label": "Primary Details"
+   "label": "Primary Details",
+   "idx": 2
   },
   {
    "columns": 3,
@@ -96,7 +98,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Compliance Name / Title",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 3
   },
   {
    "columns": 2,
@@ -105,18 +108,21 @@
    "in_list_view": 1,
    "label": "Category",
    "options": "Compliance Category",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 4
   },
   {
    "fieldname": "obligation_type",
    "fieldtype": "Select",
    "label": "Obligation Type",
    "options": "\nLicence\nFiling\nAgreement\nRenewal\nInspection\nApproval\nOther",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 5
   },
   {
    "fieldname": "cb_details_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 6
   },
   {
    "fieldname": "compliance_company",
@@ -124,7 +130,8 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Compliance Company",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 7
   },
   {
    "columns": 2,
@@ -133,12 +140,14 @@
    "in_list_view": 1,
    "label": "Department",
    "options": "Compliance Department",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 8
   },
   {
    "fieldname": "issuing_authority",
    "fieldtype": "Data",
-   "label": "Issuing Authority"
+   "label": "Issuing Authority",
+   "idx": 9
   },
   {
    "fieldname": "department_head",
@@ -146,23 +155,27 @@
    "hidden": 1,
    "label": "Department Head",
    "options": "User",
-   "read_only": 1
+   "read_only": 1,
+   "idx": 10
   },
   {
    "fieldname": "cb_details_2",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 11
   },
   {
    "default": "1",
    "fieldname": "is_active",
    "fieldtype": "Check",
-   "label": "Is Active"
+   "label": "Is Active",
+   "idx": 12
   },
   {
    "default": "0",
    "fieldname": "is_project_based",
    "fieldtype": "Check",
-   "label": "Is Project Based"
+   "label": "Is Project Based",
+   "idx": 13
   },
   {
    "depends_on": "eval:doc.is_project_based == 1",
@@ -170,51 +183,60 @@
    "fieldtype": "Link",
    "label": "Project",
    "mandatory_depends_on": "eval:doc.is_project_based == 1",
-   "options": "Compliance Project"
+   "options": "Compliance Project",
+   "idx": 14
   },
   {
    "default": "0",
    "description": "Check if this compliance is for a branch property rent or lease agreement.",
    "fieldname": "is_rent",
    "fieldtype": "Check",
-   "label": "Is Rent & Lease"
+   "label": "Is Rent & Lease",
+   "idx": 15
   },
   {
    "fieldname": "description_section",
    "fieldtype": "Section Break",
-   "label": "Scope & Legal Reference"
+   "label": "Scope & Legal Reference",
+   "idx": 16
   },
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
-   "label": "Description"
+   "label": "Description",
+   "idx": 17
   },
   {
    "fieldname": "cb_desc_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 18
   },
   {
    "fieldname": "legal_basis",
    "fieldtype": "Small Text",
-   "label": "Legal / Contractual Basis"
+   "label": "Legal / Contractual Basis",
+   "idx": 19
   },
   {
    "depends_on": "eval:doc.is_rent==1",
    "fieldname": "rent_details_tab",
    "fieldtype": "Tab Break",
-   "label": "Rent Details"
+   "label": "Rent Details",
+   "idx": 20
   },
   {
    "fieldname": "branch_property_section",
    "fieldtype": "Section Break",
-   "label": "Branch & Property Identification"
+   "label": "Branch & Property Identification",
+   "idx": 21
   },
   {
    "description": "Administrative operating zone of the branch property.",
    "fieldname": "zone",
    "fieldtype": "Select",
    "label": "Zone",
-   "options": "\nZONE-1\nZONE-2\nZONE-3\nZONE-4\nZONE-5\nZONE-6\nZONE-7"
+   "options": "\nZONE-1\nZONE-2\nZONE-3\nZONE-4\nZONE-5\nZONE-6\nZONE-7",
+   "idx": 22
   },
   {
    "description": "Select the branch Cost Center for rent accounting.",
@@ -224,11 +246,13 @@
    "in_standard_filter": 1,
    "label": "Branch (Cost Center)",
    "mandatory_depends_on": "eval:doc.is_rent==1",
-   "options": "Cost Center"
+   "options": "Cost Center",
+   "idx": 23
   },
   {
    "fieldname": "cb_rent_prop_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 24
   },
   {
    "default": "Commercial",
@@ -236,7 +260,8 @@
    "fieldname": "type_of_agreement",
    "fieldtype": "Select",
    "label": "Type of Agreement",
-   "options": "Commercial\nResidential\nOther"
+   "options": "Commercial\nResidential\nOther",
+   "idx": 25
   },
   {
    "default": "Operational",
@@ -244,80 +269,94 @@
    "fieldname": "working_status",
    "fieldtype": "Select",
    "label": "Working Status",
-   "options": "Operational\nUnder Fit-out\nVacating"
+   "options": "Operational\nUnder Fit-out\nVacating",
+   "idx": 26
   },
   {
    "description": "Total carpet or super built-up area of the leased property in square feet.",
    "fieldname": "area_sq_ft",
    "fieldtype": "Float",
-   "label": "Area (Sq Ft)"
+   "label": "Area (Sq Ft)",
+   "idx": 27
   },
   {
    "description": "Complete physical address of the leased branch premises.",
    "fieldname": "property_address",
    "fieldtype": "Small Text",
-   "label": "Property Address"
+   "label": "Property Address",
+   "idx": 28
   },
   {
    "fieldname": "tenure_notice_section",
    "fieldtype": "Section Break",
-   "label": "Tenure & Notice Terms"
+   "label": "Tenure & Notice Terms",
+   "idx": 29
   },
   {
    "description": "Contractual lock-in duration in months during which neither party can terminate without penalty.",
    "fieldname": "lock_in_period_months",
    "fieldtype": "Int",
-   "label": "Lock-in Period (Months)"
+   "label": "Lock-in Period (Months)",
+   "idx": 30
   },
   {
    "description": "Date when the lock-in commitment expires as per the rent agreement.",
    "fieldname": "lock_in_end_date",
    "fieldtype": "Date",
-   "label": "Lock-in End Date"
+   "label": "Lock-in End Date",
+   "idx": 31
   },
   {
    "fieldname": "cb_rent_tenure_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 32
   },
   {
    "description": "Prior notice period in months required to vacate the premises.",
    "fieldname": "vacation_notice_months",
    "fieldtype": "Int",
-   "label": "Vacation Notice (Months)"
+   "label": "Vacation Notice (Months)",
+   "idx": 33
   },
   {
    "description": "Advance notice period in months required prior to lease expiry for renegotiation or renewal.",
    "fieldname": "renewal_notice_months",
    "fieldtype": "Int",
-   "label": "Renewal Notice (Months)"
+   "label": "Renewal Notice (Months)",
+   "idx": 34
   },
   {
    "fieldname": "financial_escalation_section",
    "fieldtype": "Section Break",
-   "label": "Financial & Escalation Terms"
+   "label": "Financial & Escalation Terms",
+   "idx": 35
   },
   {
    "description": "Total monthly base rent payable for the property as stipulated in the agreement.",
    "fieldname": "monthly_rent",
    "fieldtype": "Currency",
    "label": "Monthly Rent as per Agreement",
-   "mandatory_depends_on": "eval:doc.is_rent==1"
+   "mandatory_depends_on": "eval:doc.is_rent==1",
+   "idx": 36
   },
   {
    "description": "Total refundable interest-free security deposit paid to the landlords.",
    "fieldname": "security_deposit",
    "fieldtype": "Currency",
-   "label": "Security Deposit"
+   "label": "Security Deposit",
+   "idx": 37
   },
   {
    "fieldname": "cb_rent_fin_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 38
   },
   {
    "description": "Contractual rent escalation rate in percentage (e.g. 5%, 10%, 15%).",
    "fieldname": "increment_percentage",
    "fieldtype": "Percent",
-   "label": "Increment Percentage (%)"
+   "label": "Increment Percentage (%)",
+   "idx": 39
   },
   {
    "default": "Annual",
@@ -325,52 +364,70 @@
    "fieldname": "increment_frequency",
    "fieldtype": "Select",
    "label": "Increment Frequency",
-   "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years"
+   "options": "Annual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years",
+   "idx": 40
   },
   {
    "description": "Upcoming effective date when the next contractual rent increment becomes applicable.",
    "fieldname": "next_increment_date",
    "fieldtype": "Date",
-   "label": "Next Increment Date"
+   "label": "Next Increment Date",
+   "idx": 41
   },
   {
    "fieldname": "landlords_section",
    "fieldtype": "Section Break",
-   "label": "Landlords & Payment Allocation"
+   "label": "Landlords & Payment Allocation",
+   "idx": 42
+  },
+  {
+   "fieldname": "no_of_owners",
+   "fieldtype": "Int",
+   "label": "No. of Owners",
+   "description": "Specify total number of co-owners / landlords.",
+   "depends_on": "eval:doc.is_rent==1",
+   "default": "1",
+   "idx": 43
   },
   {
    "description": "List of co-owners / landlords, their payment mode, bank accounts, tax treatment, and rent allocation ratio (must total 100%).",
    "fieldname": "landlords",
    "fieldtype": "Table",
    "label": "Landlords",
-   "options": "Compliance Landlord Item"
+   "options": "Compliance Landlord Item",
+   "idx": 44
   },
   {
    "fieldname": "schedule_tab",
    "fieldtype": "Tab Break",
-   "label": "Schedule"
+   "label": "Schedule",
+   "idx": 45
   },
   {
    "fieldname": "schedule_section",
    "fieldtype": "Section Break",
-   "label": "Timeline & Recurrence"
+   "label": "Timeline & Recurrence",
+   "idx": 46
   },
   {
    "description": "Effective starting date of the compliance obligation or initial licence cycle.",
    "fieldname": "start_date",
    "fieldtype": "Date",
    "label": "Start / Effective Date",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 47
   },
   {
    "description": "Expiration date for time-bound obligations (licences, leases, or agreements). Leave blank for perpetual.",
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "Validity End / Expiry Date"
+   "label": "Validity End / Expiry Date",
+   "idx": 48
   },
   {
    "fieldname": "cb_schedule_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 49
   },
   {
    "default": "Annual",
@@ -379,19 +436,22 @@
    "fieldtype": "Select",
    "label": "Recurrence",
    "options": "One-Time\nMonthly\nQuarterly\nHalf-Yearly\nAnnual\nEvery 2 Years\nEvery 3 Years\nEvery 5 Years\nEvent-Based",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 50
   },
   {
    "default": "30",
    "description": "Lead time in days before due date when the compliance request should auto-trigger.",
    "fieldname": "days_to_start_in_advance",
    "fieldtype": "Int",
-   "label": "Days to Start in Advance"
+   "label": "Days to Start in Advance",
+   "idx": 51
   },
   {
    "fieldname": "risk_section",
    "fieldtype": "Section Break",
-   "label": "Risk & Governance Control"
+   "label": "Risk & Governance Control",
+   "idx": 52
   },
   {
    "default": "Medium",
@@ -400,114 +460,134 @@
    "fieldtype": "Select",
    "label": "Risk Tier",
    "options": "Low\nMedium\nHigh\nCritical",
-   "reqd": 1
+   "reqd": 1,
+   "idx": 53
   },
   {
    "fieldname": "cb_risk_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 54
   },
   {
    "default": "0",
    "description": "Strict Maker-Checker control: The person executing cannot approve closure.",
    "fieldname": "is_critical",
    "fieldtype": "Check",
-   "label": "Is Critical (Enforce Maker-Checker)"
+   "label": "Is Critical (Enforce Maker-Checker)",
+   "idx": 55
   },
   {
    "fieldname": "assignment_tab",
    "fieldtype": "Tab Break",
-   "label": "Assignment"
+   "label": "Assignment",
+   "idx": 56
   },
   {
    "fieldname": "assignments_section",
    "fieldtype": "Section Break",
-   "label": "Roles & Responsibility Matrix"
+   "label": "Roles & Responsibility Matrix",
+   "idx": 57
   },
   {
    "fieldname": "assignments",
    "fieldtype": "Table",
    "label": "Assignments",
-   "options": "Compliance Assignment Item"
+   "options": "Compliance Assignment Item",
+   "idx": 58
   },
   {
    "fieldname": "alert_timing_section",
    "fieldtype": "Section Break",
-   "label": "Timing & Window Rules"
+   "label": "Timing & Window Rules",
+   "idx": 59
   },
   {
    "default": "0",
    "description": "Grace period (in days) allowed after the statutory due date before critical escalation triggers.",
    "fieldname": "overdue_grace_days",
    "fieldtype": "Int",
-   "label": "Overdue Grace Days"
+   "label": "Overdue Grace Days",
+   "idx": 60
   },
   {
    "fieldname": "cb_alert_timing_1",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "idx": 61
   },
   {
    "default": "3",
    "description": "Maximum allowed days for the assigned owner to acknowledge alert notifications.",
    "fieldname": "acknowledgement_window_days",
    "fieldtype": "Int",
-   "label": "Acknowledgement Window (Days)"
+   "label": "Acknowledgement Window (Days)",
+   "idx": 62
   },
   {
    "fieldname": "alert_ladder_section",
    "fieldtype": "Section Break",
-   "label": "Escalation Ladder & Alert Triggers"
+   "label": "Escalation Ladder & Alert Triggers",
+   "idx": 63
   },
   {
    "description": "Configured notification timeline and escalation hierarchy based on days relative to due date.",
    "fieldname": "alert_days",
    "fieldtype": "Table",
    "label": "Alert Schedule",
-   "options": "Alert Schedule"
+   "options": "Alert Schedule",
+   "idx": 64
   },
   {
    "fieldname": "evidence_tab",
    "fieldtype": "Tab Break",
-   "label": "Evidence Rules"
+   "label": "Evidence Rules",
+   "idx": 65
   },
   {
    "fieldname": "evidence_section",
    "fieldtype": "Section Break",
-   "label": "Mandatory & Optional Evidence"
+   "label": "Mandatory & Optional Evidence",
+   "idx": 66
   },
   {
    "fieldname": "evidence_rules",
    "fieldtype": "Table",
    "label": "Evidence Rules",
-   "options": "Evidence Rule"
+   "options": "Evidence Rule",
+   "idx": 67
   },
   {
    "fieldname": "request_tab",
    "fieldtype": "Tab Break",
-   "label": "Requests"
+   "label": "Requests",
+   "idx": 68
   },
   {
    "fieldname": "requests_section",
    "fieldtype": "Section Break",
-   "label": "Execution History & Requests"
+   "label": "Execution History & Requests",
+   "idx": 69
   },
   {
    "fieldname": "html_filg",
    "fieldtype": "HTML",
-   "label": "Linked Requests"
+   "label": "Linked Requests",
+   "idx": 70
   },
   {
    "depends_on": "eval:doc.is_project_based==1",
    "fieldname": "predecessor",
    "fieldtype": "Link",
    "label": "Predecessor Compliance",
-   "options": "Compliance"
+   "options": "Compliance",
+   "idx": 71
   },
   {
    "default": "0",
    "depends_on": "eval:doc.is_project_based==1",
    "fieldname": "is_critical_path",
    "fieldtype": "Check",
-   "label": "Is Critical Path (Go-Live Blocker)"
+   "label": "Is Critical Path (Go-Live Blocker)",
+   "idx": 72
   }
  ],
  "grid_page_length": 50,

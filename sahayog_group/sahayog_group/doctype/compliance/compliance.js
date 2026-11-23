@@ -24,7 +24,11 @@ frappe.ui.form.on("Compliance", {
 			frm.set_value("category", "Rent & Lease");
 			if (!frm.doc.obligation_type) frm.set_value("obligation_type", "Agreement");
 			if (!frm.doc.recurrence) frm.set_value("recurrence", "Monthly");
+			if (!frm.doc.no_of_owners) frm.set_value("no_of_owners", 1);
 		}
+	},
+	no_of_owners(frm) {
+		sync_landlords_count(frm);
 	},
 	department(frm) {
 		fill_department_head(frm);
@@ -162,3 +166,32 @@ frappe.ui.form.on("Compliance Landlord Item", {
 		}
 	},
 });
+
+function sync_landlords_count(frm) {
+	if (!frm.doc.is_rent) return;
+	const target = parseInt(frm.doc.no_of_owners || 0, 10);
+	if (target < 0) {
+		frm.set_value('no_of_owners', 1);
+		return;
+	}
+	const current = (frm.doc.landlords || []).length;
+	if (current < target) {
+		for (let i = current; i < target; i++) {
+			frm.add_child('landlords');
+		}
+		frm.refresh_field('landlords');
+	} else if (current > target && target > 0) {
+		frappe.confirm(
+			__('Decreasing No. of Owners will remove extra landlord rows. Continue?'),
+			() => {
+				while ((frm.doc.landlords || []).length > target) {
+					frm.doc.landlords.pop();
+				}
+				frm.refresh_field('landlords');
+			},
+			() => {
+				frm.set_value('no_of_owners', current);
+			}
+		);
+	}
+}

@@ -19,8 +19,12 @@ def validate_landlords(doc):
     rows = doc.get("landlords") or []
     errors = []
 
-    if doc.get("is_rent") and not rows:
-        frappe.throw(_("Add at least one Landlord in the Rent Details tab."), title=_("Landlords"))
+    if doc.get("is_rent"):
+        no_of_owners = int(doc.get("no_of_owners") or 0)
+        if no_of_owners > 0 and len(rows) != no_of_owners:
+            errors.append(_("Total landlords ({0}) must match the specified No. of Owners ({1}).").format(len(rows), no_of_owners))
+        if not rows:
+            frappe.throw(_("Add at least one Landlord in the Rent Details tab."), title=_("Landlords"))
 
     remaining = 100.0
     for row in rows:
